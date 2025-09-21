@@ -1,268 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Portal System</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      transition: background-image 0.5s ease-in-out;
-    }
-    body.login-bg { background-image: url('images/login-bg.jpg'); }
-    body.register-bg { background-image: url('images/register-bg.jpg'); }
-    body.applicant-bg { background-image: url('images/applicant-bg.jpg'); }
-    body.hr-bg { background-image: url('images/hr-bg.jpg'); }
-    .card-container {
-      display: grid;
-      place-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .custom-card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
-      padding: 20px;
-      width: 100%;
-      max-width: 600px;
-      animation: slideUp 0.8s ease-out;
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Job Portal</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body { margin:0; font-family: Arial, sans-serif; background-size: cover; background-position: center; transition: background 0.5s; }
+  .card-container { display: grid; place-items: center; min-height: 100vh; padding: 20px; }
+  .custom-card { background: rgba(255,255,255,0.95); border-radius: 15px; padding:20px; width: 100%; max-width: 600px; box-shadow:0 4px 20px rgba(0,0,0,0.1); animation: slideUp 0.8s ease-out; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(40px);} to{opacity:1; transform:translateY(0);} }
+  .hidden { display:none; }
+  .bg-login { background-image:url('images/login-bg.jpg'); }
+  .bg-register { background-image:url('images/register-bg.jpg'); }
+  .bg-applicant { background-image:url('images/applicant-bg.jpg'); }
+  .bg-hr { background-image:url('images/hr-bg.jpg'); }
+</style>
 </head>
-<body class="login-bg">
+<body class="bg-login">
 
-  <!-- Login Page -->
-  <section id="loginPage" class="card-container">
-    <div class="custom-card">
-      <h2 class="text-center">Login</h2>
-      <form id="loginForm">
-        <div class="mb-3"><label>Email</label>
-          <input type="email" id="loginEmail" class="form-control" required></div>
-        <div class="mb-3"><label>Password</label>
-          <input type="password" id="loginPassword" class="form-control" required></div>
-        <div class="mb-3"><label>Role</label>
-          <select id="loginRole" class="form-control">
-            <option value="applicant">Applicant</option>
-            <option value="hr">HR</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Login</button>
-        <p class="mt-3 text-center">No account? <a href="#" id="goRegister">Register</a></p>
-      </form>
-    </div>
-  </section>
+<!-- Login -->
+<section id="loginPage" class="card-container">
+  <div class="custom-card">
+    <h2 class="text-center">Login</h2>
+    <form id="loginForm">
+      <div class="mb-3"><label>Email</label><input type="email" class="form-control" id="loginEmail" required></div>
+      <div class="mb-3"><label>Password</label><input type="password" class="form-control" id="loginPassword" required></div>
+      <div class="mb-3">
+        <label>Role</label>
+        <select id="loginRole" class="form-control" required>
+          <option value="applicant">Applicant</option>
+          <option value="hr">HR</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+      <p class="mt-3 text-center">Don’t have an account? <a href="#" id="goRegister">Register</a></p>
+    </form>
+  </div>
+</section>
 
-  <!-- Register Page -->
-  <section id="registerPage" class="card-container" style="display:none;">
-    <div class="custom-card">
-      <h2 class="text-center">Register</h2>
-      <form id="registerForm">
-        <div class="mb-3"><label>Name</label>
-          <input type="text" id="regName" class="form-control" required></div>
-        <div class="mb-3"><label>Email</label>
-          <input type="email" id="regEmail" class="form-control" required></div>
-        <div class="mb-3"><label>Password</label>
-          <input type="password" id="regPassword" class="form-control" required></div>
-        <div class="mb-3"><label>Role</label>
-          <select id="regRole" class="form-control">
-            <option value="applicant">Applicant</option>
-            <option value="hr">HR</option>
-          </select></div>
-        <div id="extraApplicant" style="display:none;">
-          <label>Education</label><input type="text" id="regEducation" class="form-control mb-2">
-          <label>Skills</label><input type="text" id="regSkills" class="form-control mb-2">
-        </div>
-        <div id="extraHR" style="display:none;">
-          <label>Company</label><input type="text" id="regCompany" class="form-control mb-2">
-          <label>HR Age</label><input type="number" id="regAge" class="form-control mb-2">
-          <label>Phone</label><input type="text" id="regPhone" class="form-control mb-2">
-        </div>
-        <button type="submit" class="btn btn-success w-100">Register</button>
-        <p class="mt-3 text-center">Already registered? <a href="#" id="goLogin">Login</a></p>
-      </form>
-    </div>
-  </section>
+<!-- Register -->
+<section id="registerPage" class="card-container hidden">
+  <div class="custom-card">
+    <h2 class="text-center">Register</h2>
+    <form id="registerForm" enctype="multipart/form-data">
+      <div class="mb-3"><label>Role</label>
+        <select id="regRole" class="form-control" required>
+          <option value="applicant">Applicant</option>
+          <option value="hr">HR</option>
+        </select>
+      </div>
 
-  <!-- Applicant Dashboard -->
-  <section id="applicantDashboard" class="card-container" style="display:none;">
-    <div class="custom-card">
-      <h2 class="text-center">Applicant Dashboard</h2>
-      <div id="jobList"></div>
-      <button class="btn btn-info w-100 my-2" id="viewApplied">View Applied Jobs</button>
-      <button class="btn btn-secondary w-100 my-2" onclick="openMessages('applicant')">Messages</button>
-      <button class="btn btn-danger w-100" id="logoutApplicant">Logout</button>
-    </div>
-  </section>
+      <!-- Common -->
+      <div class="mb-3"><label>Name</label><input type="text" id="regName" class="form-control" required></div>
+      <div class="mb-3"><label>Email</label><input type="email" id="regEmail" class="form-control" required></div>
+      <div class="mb-3"><label>Password</label><input type="password" id="regPassword" class="form-control" required></div>
+      <div class="mb-3"><label>Age</label><input type="number" id="regAge" class="form-control" required></div>
+      <div class="mb-3"><label>Phone</label><input type="text" id="regPhone" class="form-control" required></div>
+      <div class="mb-3"><label>Photo</label><input type="file" id="regPhoto" class="form-control"></div>
 
-  <!-- HR Dashboard -->
-  <section id="hrDashboard" class="card-container" style="display:none;">
-    <div class="custom-card">
-      <h2 class="text-center">HR Dashboard</h2>
-      <button class="btn btn-success w-100 my-2" id="postJob">Post New Job</button>
-      <div id="hrJobs"></div>
-      <button class="btn btn-secondary w-100 my-2" onclick="openMessages('hr')">Messages</button>
-      <button class="btn btn-danger w-100" id="logoutHR">Logout</button>
-    </div>
-  </section>
+      <!-- Applicant fields -->
+      <div id="applicantFields" class="hidden">
+        <div class="mb-3"><label>Gender</label><input type="text" id="regGender" class="form-control"></div>
+        <div class="mb-3"><label>Education</label><input type="text" id="regEducation" class="form-control"></div>
+        <div class="mb-3"><label>Specialization</label><input type="text" id="regSpecialization" class="form-control"></div>
+        <div class="mb-3"><label>University</label><input type="text" id="regUniversity" class="form-control"></div>
+        <div class="mb-3"><label>Year</label><input type="number" id="regYear" class="form-control"></div>
+        <div class="mb-3"><label>Skills (comma separated)</label><input type="text" id="regSkills" class="form-control"></div>
+        <div class="mb-3"><label>Experience (years)</label><input type="number" id="regExperience" class="form-control"></div>
+        <div class="mb-3"><label>Resume</label><input type="file" id="regResume" class="form-control"></div>
+      </div>
 
-  <!-- Message Page -->
-  <section id="messagePage" class="card-container" style="display:none;">
-    <div class="custom-card">
-      <h2 class="text-center">Messages</h2>
-      <div id="messageList" style="height:200px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px;"></div>
-      <input type="text" id="msgReceiver" class="form-control mb-2" placeholder="Receiver Email">
-      <textarea id="msgText" class="form-control mb-2" placeholder="Type your message"></textarea>
-      <button class="btn btn-primary w-100" onclick="sendMessage()">Send</button>
-      <button class="btn btn-dark w-100 mt-2" onclick="backDashboard()">Back</button>
-    </div>
-  </section>
+      <!-- HR fields -->
+      <div id="hrFields" class="hidden">
+        <div class="mb-3"><label>Company</label><input type="text" id="regCompany" class="form-control"></div>
+        <div class="mb-3"><label>Designation</label><input type="text" id="regDesignation" class="form-control"></div>
+        <div class="mb-3"><label>Industry</label><input type="text" id="regIndustry" class="form-control"></div>
+        <div class="mb-3"><label>Address</label><input type="text" id="regAddress" class="form-control"></div>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100">Register</button>
+      <p class="mt-3 text-center">Already have an account? <a href="#" id="goLogin">Login</a></p>
+    </form>
+  </div>
+</section>
+
+<!-- Applicant Dashboard -->
+<section id="applicantDashboard" class="card-container hidden">
+  <div class="custom-card" style="max-width:800px;">
+    <h2 class="text-center">Applicant Dashboard</h2>
+    <button class="btn btn-danger w-100 mb-3" id="logoutApplicant">Logout</button>
+
+    <h4>Available Jobs</h4>
+    <div id="jobList"></div>
+
+    <h4 class="mt-3">Applied Jobs</h4>
+    <div id="appliedList"></div>
+
+    <h4 class="mt-3">Messages</h4>
+    <div id="msgList"></div>
+  </div>
+</section>
+
+<!-- HR Dashboard -->
+<section id="hrDashboard" class="card-container hidden">
+  <div class="custom-card" style="max-width:800px;">
+    <h2 class="text-center">HR Dashboard</h2>
+    <button class="btn btn-danger w-100 mb-3" id="logoutHR">Logout</button>
+
+    <h4>Post Job</h4>
+    <form id="postJobForm">
+      <div class="mb-2"><label>Title</label><input type="text" id="jobTitle" class="form-control" required></div>
+      <div class="mb-2"><label>Description</label><input type="text" id="jobDesc" class="form-control" required></div>
+      <div class="mb-2"><label>Location</label><input type="text" id="jobLoc" class="form-control" required></div>
+      <div class="mb-2"><label>Salary</label><input type="text" id="jobSalary" class="form-control" required></div>
+      <div class="mb-2"><label>Skills required (comma separated)</label><input type="text" id="jobSkills" class="form-control" required></div>
+      <div class="mb-2"><label>Experience Required</label><input type="number" id="jobExp" class="form-control" required></div>
+      <div class="mb-2"><label>End Date (YYYY-MM-DD)</label><input type="date" id="jobEnd" class="form-control" required></div>
+      <button type="submit" class="btn btn-primary w-100 mt-2">Post Job</button>
+    </form>
+
+    <h4 class="mt-3">Your Jobs</h4>
+    <div id="hrJobs"></div>
+  </div>
+</section>
 
 <script>
-const API_URL = "https://backend-ats-z0tb.onrender.com"; // replace with your Render URL
-let currentUserEmail = "";
+const backendURL = "https://your-render-backend-url.com"; // Replace with your Render backend URL
 
-function showPage(pageId, bgClass) {
-  document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
-  document.getElementById(pageId).style.display = "block";
+// Page switching
+function showPage(page, bgClass){
+  document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+  document.getElementById(page).classList.remove("hidden");
   document.body.className = bgClass;
 }
 
-// Toggle extra fields in registration
-document.getElementById("regRole").addEventListener("change", e => {
-  document.getElementById("extraApplicant").style.display = e.target.value === "applicant" ? "block":"none";
-  document.getElementById("extraHR").style.display = e.target.value === "hr" ? "block":"none";
-});
+// Login/Register toggle
+document.getElementById("goRegister").addEventListener("click", ()=>showPage("registerPage","bg-register"));
+document.getElementById("goLogin").addEventListener("click", ()=>showPage("loginPage","bg-login"));
 
-document.getElementById("goRegister").addEventListener("click", ()=> showPage("registerPage","register-bg"));
-document.getElementById("goLogin").addEventListener("click", ()=> showPage("loginPage","login-bg"));
-
-// Registration
-document.getElementById("registerForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  let data = {
-    name: document.getElementById("regName").value,
-    email: document.getElementById("regEmail").value,
-    password: document.getElementById("regPassword").value,
-    role: document.getElementById("regRole").value
-  };
-  if (data.role === "applicant") {
-    data.education = document.getElementById("regEducation").value;
-    data.skills = document.getElementById("regSkills").value;
-  } else {
-    data.company = document.getElementById("regCompany").value;
-    data.age = document.getElementById("regAge").value;
-    data.phone = document.getElementById("regPhone").value;
-  }
-  await fetch(`${API_URL}/register`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)});
-  alert("Registered successfully!");
-  showPage("loginPage","login-bg");
-});
-
-// Login
-document.getElementById("loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  let data = {
-    email: document.getElementById("loginEmail").value,
-    password: document.getElementById("loginPassword").value,
-    role: document.getElementById("loginRole").value
-  };
-  let res = await fetch(`${API_URL}/login`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)});
-  let json = await res.json();
-  if (json.success) {
-    currentUserEmail = data.email; // ✅ save login user
-    if (data.role === "applicant") {
-      showPage("applicantDashboard","applicant-bg");
-      loadJobs();
-    } else {
-      showPage("hrDashboard","hr-bg");
-      loadHRJobs();
-    }
-  } else {
-    alert("Login failed");
+// Show fields based on role in registration
+document.getElementById("regRole").addEventListener("change", e=>{
+  if(e.target.value=="applicant"){
+    document.getElementById("applicantFields").classList.remove("hidden");
+    document.getElementById("hrFields").classList.add("hidden");
+  }else{
+    document.getElementById("hrFields").classList.remove("hidden");
+    document.getElementById("applicantFields").classList.add("hidden");
   }
 });
 
-// Load Jobs for applicants
-async function loadJobs(){
-  let res = await fetch(`${API_URL}/jobs`);
-  let jobs = await res.json();
-  let html="";
-  jobs.forEach(j=>{
-    html += `<div class="border p-2 mb-2">
-      <h5>${j.title} (${j.role})</h5>
-      <p>Exp: ${j.experience} yrs | Salary: ${j.salary}</p>
-      <p>Skills: ${j.skills}</p>
-      <button class="btn btn-primary btn-sm" onclick="applyJob(${j.id})">Apply</button>
-    </div>`;
-  });
-  document.getElementById("jobList").innerHTML=html;
-}
+// ----------- Login -----------
+document.getElementById("loginForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const role = document.getElementById("loginRole").value;
 
-// Apply Job
-async function applyJob(id){
-  await fetch(`${API_URL}/apply`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({job_id:id, applicant:currentUserEmail})});
-  alert("Applied Successfully!");
-}
+  try{
+    const res = await fetch(`${backendURL}/${role}/login`,{
+      method:"POST",
+      body: new URLSearchParams({email,password})
+    });
+    const data = await res.json();
+    if(res.ok){
+      sessionStorage.setItem("user", JSON.stringify(data[role] || data.applicant));
+      if(role=="applicant") showApplicantDashboard();
+      else showHRDashboard();
+    }else alert(data.detail);
+  }catch(err){console.log(err);}
+});
 
-// HR Jobs
-async function loadHRJobs(){
-  let res = await fetch(`${API_URL}/jobs`);
-  let jobs = await res.json();
-  let html="";
-  jobs.forEach(j=>{
-    html += `<div class="border p-2 mb-2">
-      <h5>${j.title}</h5>
-      <button class="btn btn-warning btn-sm">Edit</button>
-      <button class="btn btn-danger btn-sm">Delete</button>
-    </div>`;
-  });
-  document.getElementById("hrJobs").innerHTML=html;
-}
+// ----------- Register -----------
+document.getElementById("registerForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const role = document.getElementById("regRole").value;
+  const formData = new FormData();
+  formData.append("name", document.getElementById("regName").value);
+  formData.append("email", document.getElementById("regEmail").value);
+  formData.append("password", document.getElementById("regPassword").value);
+  formData.append("age", document.getElementById("regAge").value);
+  formData.append("phone", document.getElementById("regPhone").value);
+  formData.append("photo", document.getElementById("regPhoto").files[0]||null);
 
-// ✅ Messaging
-async function openMessages(role){
-  showPage("messagePage","applicant-bg");
+  if(role=="applicant"){
+    formData.append("gender", document.getElementById("regGender").value);
+    formData.append("education", document.getElementById("regEducation").value);
+    formData.append("specialization", document.getElementById("regSpecialization").value);
+    formData.append("university", document.getElementById("regUniversity").value);
+    formData.append("year", document.getElementById("regYear").value);
+    formData.append("skills", document.getElementById("regSkills").value);
+    formData.append("experience", document.getElementById("regExperience").value);
+    formData.append("resume", document.getElementById("regResume").files[0]||null);
+  }else{
+    formData.append("company", document.getElementById("regCompany").value);
+    formData.append("designation", document.getElementById("regDesignation").value);
+    formData.append("industry", document.getElementById("regIndustry").value);
+    formData.append("address", document.getElementById("regAddress").value);
+  }
+
+  try{
+    const res = await fetch(`${backendURL}/${role}/register`,{method:"POST", body:formData});
+    const data = await res.json();
+    if(res.ok) { alert("Registered successfully"); showPage("loginPage","bg-login"); }
+    else alert(data.detail);
+  }catch(err){console.log(err);}
+});
+
+// ----------- Dashboards -----------
+function showApplicantDashboard(){
+  showPage("applicantDashboard","bg-applicant");
+  loadJobs();
+  loadAppliedJobs();
   loadMessages();
 }
 
-async function loadMessages(){
-  let res = await fetch(`${API_URL}/message/${currentUserEmail}`);
-  let msgs = await res.json();
-  let html="";
-  msgs.forEach(m=>{
-    html += `<p><b>${m.sender}:</b> ${m.text} <small>(${m.time})</small></p>`;
-  });
-  document.getElementById("messageList").innerHTML = html;
-}
-
-async function sendMessage(){
-  let data = {
-    sender: currentUserEmail,
-    receiver: document.getElementById("msgReceiver").value,
-    text: document.getElementById("msgText").value
-  };
-  await fetch(`${API_URL}/message/send`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)});
-  document.getElementById("msgText").value="";
-  loadMessages();
-}
-
-function backDashboard(){
-  let role = document.getElementById("loginRole").value;
-  if (role==="applicant") showPage("applicantDashboard","applicant-bg");
-  else showPage("hrDashboard","hr-bg");
+function showHRDashboard(){
+  showPage("hrDashboard","bg-hr");
+  loadHRJobs();
 }
 
 // Logout
-document.getElementById("logoutApplicant").addEventListener("click",()=> showPage("loginPage","login-bg"));
-document.getElementById("logoutHR").addEventListener("click",()=> showPage("loginPage","login-bg"));
+document.getElementById("logoutApplicant").addEventListener("click", ()=>{
+  sessionStorage.clear();
+  showPage("loginPage","bg-login");
+});
+document.getElementById("logoutHR").addEventListener("click", ()=>{
+  sessionStorage.clear();
+  showPage("loginPage","bg-login");
+});
+
+// ---------- Applicant Functions ----------
+async function loadJobs(){
+  const res = await fetch(`${backendURL}/jobs`);
+  const data = await res.json();
+  const jobList = document.getElementById("jobList");
+  jobList.innerHTML = "";
+  data.jobs.forEach(job=>{
+    const div = document.createElement("div");
+    div.className="border p-2 my-2";
+    div.innerHTML = `<b>${job.title}</b> - ${job.location} <br>Skills: ${job.skills_required.join(", ")}<br>Exp: ${job.experience_required} years<br><button class="btn btn-sm btn-success mt-1" onclick="applyJob('${job.id}')">Apply</button>`;
+    jobList.appendChild(div);
+  });
+}
+
+async function applyJob(job_id){
+  const email = JSON.parse(sessionStorage.getItem("user")).email;
+  const res = await fetch(`${backendURL}/apply-job`,{
+    method:"POST",
+    body: new URLSearchParams({applicant_email:email, job_id})
+  });
+  const data = await res.json();
+  alert(data.message || data.error);
+  loadAppliedJobs();
+}
+
+async function loadAppliedJobs(){
+  const email = JSON.parse(sessionStorage.getItem("user")).email;
+  const res = await fetch(`${backendURL}/applicant/applied-jobs/${email}`);
+  const data = await res.json();
+  const list = document.getElementById("appliedList");
+  list.innerHTML="";
+  data.applied_jobs.forEach(job=>{
+    const div = document.createElement("div");
+    div.className="border p-2 my-2";
+    div.innerHTML = `<b>${job.title}</b> - Status: ${job.status}`;
+    list.appendChild(div);
+  });
+}
+
+async function loadMessages(){
+  const email = JSON.parse(sessionStorage.getItem("user")).email;
+  const res = await fetch(`${backendURL}/applicant/messages/${email}`);
+  const data = await res.json();
+  const list = document.getElementById("msgList");
+  list.innerHTML="";
+  data.messages.forEach(msg=>{
+    const div = document.createElement("div");
+    div.className="border p-2 my-2";
+    div.innerHTML=`<b>From: ${msg.from}</b><br>${msg.message}`;
+    list.appendChild(div);
+  });
+}
+
+// ---------- HR Functions ----------
+document.getElementById("postJobForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const hr = JSON.parse(sessionStorage.getItem("user")).email;
+  const res = await fetch(`${backendURL}/hr/post-job`,{
+    method:"POST",
+    body: new URLSearchParams({
+      hr_email: hr,
+      title: document.getElementById("jobTitle").value,
+      description: document.getElementById("jobDesc").value,
+      location: document.getElementById("jobLoc").value,
+      salary: document.getElementById("jobSalary").value,
+      skills_required: document.getElementById("jobSkills").value,
+      experience_required: document.getElementById("jobExp").value,
+      end_date: document.getElementById("jobEnd").value
+    })
+  });
+  const data = await res.json();
+  alert(data.message);
+  loadHRJobs();
+});
+
+async function loadHRJobs(){
+  const hrEmail = JSON.parse(sessionStorage.getItem("user")).email;
+  const res = await fetch(`${backendURL}/jobs`);
+  const data = await res.json();
+  const hrJobs = document.getElementById("hrJobs");
+  hrJobs.innerHTML="";
+  data.jobs.filter(j=>j.posted_by==hrEmail).forEach(job=>{
+    const div = document.createElement("div");
+    div.className="border p-2 my-2";
+    div.innerHTML=`<b>${job.title}</b> - ${job.location}<br>Exp: ${job.experience_required}<br>
+    <button class="btn btn-sm btn-primary mt-1" onclick="viewApplications('${job.id}')">View Applications</button>`;
+    hrJobs.appendChild(div);
+  });
+}
+
+async function viewApplications(job_id){
+  const res = await fetch(`${backendURL}/applications/${job_id}`);
+  const data = await res.json();
+  let html = "";
+  data.applications.forEach(app=>{
+    html+=`<div class="border p-2 my-2">
+    <b>${app.applicant_email}</b> - Status: ${app.status} <br>
+    <button onclick="updateStatus('${job_id}','${app.applicant_email}','Shortlisted')">Shortlist</button>
+    <button onclick="updateStatus('${job_id}','${app.applicant_email}','Rejected')">Reject</button>
+    <button onclick="sendMsg('${job_id}','${app.applicant_email}')">Message</button>
+    </div>`;
+  });
+  alert(html); // simple popup, can be replaced with modal
+}
+
+async function updateStatus(job_id,email,status){
+  const res = await fetch(`${backendURL}/hr/update-status`,{
+    method:"POST",
+    body: new URLSearchParams({job_id, applicant_email: email, status})
+  });
+  const data = await res.json();
+  alert(data.message);
+  loadHRJobs();
+}
+
+function sendMsg(job_id,email){
+  const hr = JSON.parse(sessionStorage.getItem("user")).email;
+  const msg = prompt("Enter message:");
+  if(msg){
+    fetch(`${backendURL}/hr/message`,{
+      method:"POST",
+      body: new URLSearchParams({job_id, applicant_email:email, hr_email:hr, message:msg})
+    }).then(r=>r.json()).then(d=>{alert(d.message);});
+  }
+}
 </script>
+
 </body>
 </html>
