@@ -3,358 +3,363 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini Job Portal</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<title>Super Job Portal</title>
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; font-family: Arial, sans-serif; background-size: cover; background-position: center; transition: background 0.5s; }
-  .card-container { display: grid; place-items: center; min-height: 100vh; padding: 20px; }
-  .custom-card { background: rgba(255,255,255,0.95); border-radius: 15px; padding:20px; width: 100%; max-width: 600px; box-shadow:0 4px 20px rgba(0,0,0,0.1); animation: slideUp 0.8s ease-out; }
-  @keyframes slideUp { from{opacity:0;transform:translateY(40px);} to{opacity:1; transform:translateY(0);} }
-  .hidden { display:none; }
-  .bg-login { background-image:url('images/login-bg.jpg'); }
-  .bg-register { background-image:url('images/register-bg.jpg'); }
-  .bg-applicant { background-image:url('images/applicant-bg.jpg'); }
-  .bg-hr { background-image:url('images/hr-bg.jpg'); }
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+    margin: 0; padding: 0;
+  }
+  .navbar {
+    background-color: #0073B1;
+  }
+  .navbar-brand, .nav-link {
+    color: #fff !important;
+  }
+  .section { display: none; padding: 20px; }
+  .active-section { display: block; }
+  .job-card {
+    background-color: #fff;
+    padding: 15px; margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .job-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .btn-primary { background-color: #0073B1; border: none; }
+  .btn-primary:hover { background-color: #005f8d; }
+  .status-badge {
+    padding: 3px 8px; border-radius: 5px; font-size: 0.85rem;
+  }
+  .status-viewed { background-color: #ffe599; color: #000; }
+  .status-shortlisted { background-color: #6aa84f; color: #fff; }
+  .status-rejected { background-color: #e06666; color: #fff; }
+  .message-box { border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 10px; background-color: #fff; }
+  input, select, textarea { margin-bottom: 10px; }
+  .pointer { cursor: pointer; }
 </style>
 </head>
-<body class="bg-login">
+<body>
 
-<!-- Login -->
-<section id="loginPage" class="card-container">
-  <div class="custom-card">
-    <h2 class="text-center">Login</h2>
-    <form id="loginForm">
-      <div class="mb-3"><label>Email</label><input type="email" class="form-control" id="loginEmail" required></div>
-      <div class="mb-3"><label>Password</label><input type="password" class="form-control" id="loginPassword" required></div>
-      <div class="mb-3">
-        <label>Role</label>
-        <select id="loginRole" class="form-control" required>
-          <option value="applicant">Applicant</option>
-          <option value="hr">HR</option>
-        </select>
-      </div>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" onclick="showSection('home')">Job Portal</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link pointer" onclick="showSection('home')">Home</a></li>
+        <li class="nav-item"><a class="nav-link pointer" onclick="showSection('applicantLogin')">Applicant Login</a></li>
+        <li class="nav-item"><a class="nav-link pointer" onclick="showSection('hrLogin')">HR Login</a></li>
+        <li class="nav-item"><a class="nav-link pointer" onclick="showSection('applicantRegister')">Applicant Register</a></li>
+        <li class="nav-item"><a class="nav-link pointer" onclick="showSection('hrRegister')">HR Register</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Sections -->
+<div class="container">
+
+  <!-- Home -->
+  <div id="home" class="section active-section text-center">
+    <h1 class="my-4">Welcome to the Super Job Portal</h1>
+    <p>Register/Login as Applicant or HR to get started.</p>
+  </div>
+
+  <!-- Applicant Registration -->
+  <div id="applicantRegister" class="section">
+    <h3>Applicant Registration</h3>
+    <form id="applicantRegisterForm">
+      <input type="text" id="applicantName" class="form-control" placeholder="Full Name" required>
+      <input type="email" id="applicantEmail" class="form-control" placeholder="Email" required>
+      <input type="password" id="applicantPassword" class="form-control" placeholder="Password" required>
+      <input type="text" id="applicantContact" class="form-control" placeholder="Contact Number" required>
+      <input type="number" id="applicantAge" class="form-control" placeholder="Age" required>
+      <input type="text" id="applicantSkills" class="form-control" placeholder="Skills (comma separated)" required>
+      <input type="text" id="applicantExperience" class="form-control" placeholder="Experience (Years)" required>
+      <input type="text" id="applicantDegree" class="form-control" placeholder="Highest Degree" required>
+      <input type="text" id="applicantUniversity" class="form-control" placeholder="University/College" required>
+      <input type="file" id="applicantResume" class="form-control">
+      <button type="submit" class="btn btn-primary w-100">Register</button>
+    </form>
+  </div>
+
+  <!-- HR Registration -->
+  <div id="hrRegister" class="section">
+    <h3>HR / Company Registration</h3>
+    <form id="hrRegisterForm">
+      <input type="text" id="hrCompanyName" class="form-control" placeholder="Company Name" required>
+      <input type="text" id="hrName" class="form-control" placeholder="HR Name" required>
+      <input type="email" id="hrEmail" class="form-control" placeholder="Email" required>
+      <input type="password" id="hrPassword" class="form-control" placeholder="Password" required>
+      <input type="text" id="hrContact" class="form-control" placeholder="Contact Number" required>
+      <textarea id="hrDescription" class="form-control" placeholder="Company Description"></textarea>
+      <input type="file" id="hrLogo" class="form-control">
+      <button type="submit" class="btn btn-primary w-100">Register</button>
+    </form>
+  </div>
+
+  <!-- Applicant Login -->
+  <div id="applicantLogin" class="section">
+    <h3>Applicant Login</h3>
+    <form id="applicantLoginForm">
+      <input type="email" id="loginApplicantEmail" class="form-control" placeholder="Email" required>
+      <input type="password" id="loginApplicantPassword" class="form-control" placeholder="Password" required>
       <button type="submit" class="btn btn-primary w-100">Login</button>
-      <p class="mt-3 text-center">Don’t have an account? <a href="#" id="goRegister">Register</a></p>
     </form>
   </div>
-</section>
 
-<!-- Register -->
-<section id="registerPage" class="card-container hidden">
-  <div class="custom-card">
-    <h2 class="text-center">Register</h2>
-    <form id="registerForm" enctype="multipart/form-data">
-      <div class="mb-3"><label>Role</label>
-        <select id="regRole" class="form-control" required>
-          <option value="applicant">Applicant</option>
-          <option value="hr">HR</option>
-        </select>
-      </div>
-
-      <!-- Common -->
-      <div class="mb-3"><label>Name</label><input type="text" id="regName" class="form-control" required></div>
-      <div class="mb-3"><label>Email</label><input type="email" id="regEmail" class="form-control" required></div>
-      <div class="mb-3"><label>Password</label><input type="password" id="regPassword" class="form-control" required></div>
-      <div class="mb-3"><label>Age</label><input type="number" id="regAge" class="form-control" required></div>
-      <div class="mb-3"><label>Phone</label><input type="text" id="regPhone" class="form-control" required></div>
-      <div class="mb-3"><label>Photo</label><input type="file" id="regPhoto" class="form-control"></div>
-
-      <!-- Applicant fields -->
-      <div id="applicantFields" class="hidden">
-        <div class="mb-3"><label>Gender</label><input type="text" id="regGender" class="form-control"></div>
-        <div class="mb-3"><label>Education</label><input type="text" id="regEducation" class="form-control"></div>
-        <div class="mb-3"><label>Specialization</label><input type="text" id="regSpecialization" class="form-control"></div>
-        <div class="mb-3"><label>University</label><input type="text" id="regUniversity" class="form-control"></div>
-        <div class="mb-3"><label>Year</label><input type="number" id="regYear" class="form-control"></div>
-        <div class="mb-3"><label>Skills (comma separated)</label><input type="text" id="regSkills" class="form-control"></div>
-        <div class="mb-3"><label>Experience (years)</label><input type="number" id="regExperience" class="form-control"></div>
-        <div class="mb-3"><label>Resume</label><input type="file" id="regResume" class="form-control"></div>
-      </div>
-
-      <!-- HR fields -->
-      <div id="hrFields" class="hidden">
-        <div class="mb-3"><label>Company</label><input type="text" id="regCompany" class="form-control"></div>
-        <div class="mb-3"><label>Designation</label><input type="text" id="regDesignation" class="form-control"></div>
-        <div class="mb-3"><label>Industry</label><input type="text" id="regIndustry" class="form-control"></div>
-        <div class="mb-3"><label>Address</label><input type="text" id="regAddress" class="form-control"></div>
-      </div>
-
-      <button type="submit" class="btn btn-success w-100">Register</button>
-      <p class="mt-3 text-center">Already have an account? <a href="#" id="goLogin">Login</a></p>
+  <!-- HR Login -->
+  <div id="hrLogin" class="section">
+    <h3>HR / Company Login</h3>
+    <form id="hrLoginForm">
+      <input type="email" id="loginHrEmail" class="form-control" placeholder="Email" required>
+      <input type="password" id="loginHrPassword" class="form-control" placeholder="Password" required>
+      <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
   </div>
-</section>
 
-<!-- Applicant Dashboard -->
-<section id="applicantDashboard" class="card-container hidden">
-  <div class="custom-card" style="max-width:800px;">
-    <h2 class="text-center">Applicant Dashboard</h2>
-    <button class="btn btn-danger w-100 mb-3" id="logoutApplicant">Logout</button>
+  <!-- Applicant Dashboard -->
+  <div id="applicantDashboard" class="section">
+    <h3>Applicant Dashboard</h3>
+    <ul class="nav nav-tabs my-3">
+      <li class="nav-item"><a class="nav-link active pointer" onclick="showApplicantTab('jobFeed')">Job Feed</a></li>
+      <li class="nav-item"><a class="nav-link pointer" onclick="showApplicantTab('appliedJobs')">Applied Jobs</a></li>
+      <li class="nav-item"><a class="nav-link pointer" onclick="showApplicantTab('applicantProfile')">Profile</a></li>
+    </ul>
 
-    <h4>Available Jobs</h4>
-    <div id="jobList"></div>
+    <!-- Job Feed -->
+    <div id="jobFeed" class="applicant-tab active-section"></div>
 
-    <h4 class="mt-3">Applied Jobs</h4>
-    <div id="appliedList"></div>
+    <!-- Applied Jobs -->
+    <div id="appliedJobs" class="applicant-tab"></div>
 
-    <h4 class="mt-3">Messages</h4>
-    <div id="msgList"></div>
+    <!-- Profile -->
+    <div id="applicantProfile" class="applicant-tab">
+      <h5>Applicant Profile</h5>
+      <p id="profileInfo"></p>
+    </div>
   </div>
-</section>
 
-<!-- HR Dashboard -->
-<section id="hrDashboard" class="card-container hidden">
-  <div class="custom-card" style="max-width:800px;">
-    <h2 class="text-center">HR Dashboard</h2>
-    <button class="btn btn-danger w-100 mb-3" id="logoutHR">Logout</button>
+  <!-- HR Dashboard -->
+  <div id="hrDashboard" class="section">
+    <h3>HR Dashboard</h3>
+    <ul class="nav nav-tabs my-3">
+      <li class="nav-item"><a class="nav-link active pointer" onclick="showHrTab('postJob')">Post Job</a></li>
+      <li class="nav-item"><a class="nav-link pointer" onclick="showHrTab('postedJobs')">Posted Jobs</a></li>
+      <li class="nav-item"><a class="nav-link pointer" onclick="showHrTab('applications')">Applications</a></li>
+      <li class="nav-item"><a class="nav-link pointer" onclick="showHrTab('hrProfile')">Profile</a></li>
+    </ul>
 
-    <h4>Post Job</h4>
-    <form id="postJobForm">
-      <div class="mb-2"><label>Title</label><input type="text" id="jobTitle" class="form-control" required></div>
-      <div class="mb-2"><label>Description</label><input type="text" id="jobDesc" class="form-control" required></div>
-      <div class="mb-2"><label>Location</label><input type="text" id="jobLoc" class="form-control" required></div>
-      <div class="mb-2"><label>Salary</label><input type="text" id="jobSalary" class="form-control" required></div>
-      <div class="mb-2"><label>Skills required (comma separated)</label><input type="text" id="jobSkills" class="form-control" required></div>
-      <div class="mb-2"><label>Experience Required</label><input type="number" id="jobExp" class="form-control" required></div>
-      <div class="mb-2"><label>End Date (YYYY-MM-DD)</label><input type="date" id="jobEnd" class="form-control" required></div>
-      <button type="submit" class="btn btn-primary w-100 mt-2">Post Job</button>
-    </form>
+    <!-- Post Job -->
+    <div id="postJob" class="hr-tab active-section">
+      <form id="postJobForm">
+        <input type="text" id="jobTitle" class="form-control" placeholder="Job Title" required>
+        <input type="text" id="jobRole" class="form-control" placeholder="Role" required>
+        <input type="number" id="jobExperience" class="form-control" placeholder="Experience Required (Years)" required>
+        <input type="text" id="jobSkills" class="form-control" placeholder="Skills Required (comma separated)" required>
+        <input type="text" id="jobSalary" class="form-control" placeholder="Salary" required>
+        <input type="date" id="jobEndDate" class="form-control" placeholder="End Date" required>
+        <textarea id="jobDescription" class="form-control" placeholder="Job Description"></textarea>
+        <button type="submit" class="btn btn-primary w-100">Post Job</button>
+      </form>
+    </div>
 
-    <h4 class="mt-3">Your Jobs</h4>
-    <div id="hrJobs"></div>
+    <!-- Posted Jobs -->
+    <div id="postedJobs" class="hr-tab"></div>
+
+    <!-- Applications -->
+    <div id="applications" class="hr-tab"></div>
+
+    <!-- Profile -->
+    <div id="hrProfile" class="hr-tab">
+      <h5>HR Profile</h5>
+      <p id="hrProfileInfo"></p>
+    </div>
   </div>
-</section>
 
+</div>
+
+<!-- Scripts -->
 <script>
-const backendURL = "https://backend-ats-z0tb.onrender.com"; // Replace with your Render backend URL
+const backendURL = "https://backend-ats-z0tb.onrender.com";
 
-// Page switching
-function showPage(page, bgClass){
-  document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
-  document.getElementById(page).classList.remove("hidden");
-  document.body.className = bgClass;
+function showSection(id){
+  document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('active-section'));
+  document.getElementById(id).classList.add('active-section');
 }
 
-// Login/Register toggle
-document.getElementById("goRegister").addEventListener("click", ()=>showPage("registerPage","bg-register"));
-document.getElementById("goLogin").addEventListener("click", ()=>showPage("loginPage","bg-login"));
+// Applicant Tabs
+function showApplicantTab(id){
+  document.querySelectorAll('.applicant-tab').forEach(tab=>tab.classList.remove('active-section'));
+  document.getElementById(id).classList.add('active-section');
+  document.querySelectorAll('#applicantDashboard .nav-link').forEach(link=>link.classList.remove('active'));
+  event.target.classList.add('active');
+}
 
-// Show fields based on role in registration
-document.getElementById("regRole").addEventListener("change", e=>{
-  if(e.target.value=="applicant"){
-    document.getElementById("applicantFields").classList.remove("hidden");
-    document.getElementById("hrFields").classList.add("hidden");
-  }else{
-    document.getElementById("hrFields").classList.remove("hidden");
-    document.getElementById("applicantFields").classList.add("hidden");
-  }
-});
+// HR Tabs
+function showHrTab(id){
+  document.querySelectorAll('.hr-tab').forEach(tab=>tab.classList.remove('active-section'));
+  document.getElementById(id).classList.add('active-section');
+  document.querySelectorAll('#hrDashboard .nav-link').forEach(link=>link.classList.remove('active'));
+  event.target.classList.add('active');
+}
 
-// ----------- Login -----------
-document.getElementById("loginForm").addEventListener("submit", async e=>{
+// Dummy frontend storage (session only)
+let applicantData = {};
+let hrData = {};
+let jobs = [];
+let applications = [];
+
+// Applicant Registration
+document.getElementById('applicantRegisterForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
-  const role = document.getElementById("loginRole").value;
-
-  try{
-    const res = await fetch(`${backendURL}/${role}/login`,{
-      method:"POST",
-      body: new URLSearchParams({email,password})
-    });
-    const data = await res.json();
-    if(res.ok){
-      sessionStorage.setItem("user", JSON.stringify(data[role] || data.applicant));
-      if(role=="applicant") showApplicantDashboard();
-      else showHRDashboard();
-    }else alert(data.detail);
-  }catch(err){console.log(err);}
+  let formData = {
+    name: document.getElementById('applicantName').value,
+    email: document.getElementById('applicantEmail').value,
+    password: document.getElementById('applicantPassword').value,
+    contact: document.getElementById('applicantContact').value,
+    age: document.getElementById('applicantAge').value,
+    skills: document.getElementById('applicantSkills').value.split(','),
+    experience: document.getElementById('applicantExperience').value,
+    degree: document.getElementById('applicantDegree').value,
+    university: document.getElementById('applicantUniversity').value
+  };
+  applicantData = formData;
+  alert('Applicant Registered! (Session Only)');
+  showSection('applicantDashboard');
+  renderJobFeed();
+  renderApplicantProfile();
 });
 
-// ----------- Register -----------
-document.getElementById("registerForm").addEventListener("submit", async e=>{
+// HR Registration
+document.getElementById('hrRegisterForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const role = document.getElementById("regRole").value;
-  const formData = new FormData();
-  formData.append("name", document.getElementById("regName").value);
-  formData.append("email", document.getElementById("regEmail").value);
-  formData.append("password", document.getElementById("regPassword").value);
-  formData.append("age", document.getElementById("regAge").value);
-  formData.append("phone", document.getElementById("regPhone").value);
-  formData.append("photo", document.getElementById("regPhoto").files[0]||null);
-
-  if(role=="applicant"){
-    formData.append("gender", document.getElementById("regGender").value);
-    formData.append("education", document.getElementById("regEducation").value);
-    formData.append("specialization", document.getElementById("regSpecialization").value);
-    formData.append("university", document.getElementById("regUniversity").value);
-    formData.append("year", document.getElementById("regYear").value);
-    formData.append("skills", document.getElementById("regSkills").value);
-    formData.append("experience", document.getElementById("regExperience").value);
-    formData.append("resume", document.getElementById("regResume").files[0]||null);
-  }else{
-    formData.append("company", document.getElementById("regCompany").value);
-    formData.append("designation", document.getElementById("regDesignation").value);
-    formData.append("industry", document.getElementById("regIndustry").value);
-    formData.append("address", document.getElementById("regAddress").value);
-  }
-
-  try{
-    const res = await fetch(`${backendURL}/${role}/register`,{method:"POST", body:formData});
-    const data = await res.json();
-    if(res.ok) { alert("Registered successfully"); showPage("loginPage","bg-login"); }
-    else alert(data.detail);
-  }catch(err){console.log(err);}
+  let formData = {
+    companyName: document.getElementById('hrCompanyName').value,
+    hrName: document.getElementById('hrName').value,
+    email: document.getElementById('hrEmail').value,
+    password: document.getElementById('hrPassword').value,
+    contact: document.getElementById('hrContact').value,
+    description: document.getElementById('hrDescription').value
+  };
+  hrData = formData;
+  alert('HR Registered! (Session Only)');
+  showSection('hrDashboard');
+  renderHrProfile();
 });
 
-// ----------- Dashboards -----------
-function showApplicantDashboard(){
-  showPage("applicantDashboard","bg-applicant");
-  loadJobs();
-  loadAppliedJobs();
-  loadMessages();
-}
-
-function showHRDashboard(){
-  showPage("hrDashboard","bg-hr");
-  loadHRJobs();
-}
-
-// Logout
-document.getElementById("logoutApplicant").addEventListener("click", ()=>{
-  sessionStorage.clear();
-  showPage("loginPage","bg-login");
-});
-document.getElementById("logoutHR").addEventListener("click", ()=>{
-  sessionStorage.clear();
-  showPage("loginPage","bg-login");
-});
-
-// ---------- Applicant Functions ----------
-async function loadJobs(){
-  const res = await fetch(`${backendURL}/jobs`);
-  const data = await res.json();
-  const jobList = document.getElementById("jobList");
-  jobList.innerHTML = "";
-  data.jobs.forEach(job=>{
-    const div = document.createElement("div");
-    div.className="border p-2 my-2";
-    div.innerHTML = `<b>${job.title}</b> - ${job.location} <br>Skills: ${job.skills_required.join(", ")}<br>Exp: ${job.experience_required} years<br><button class="btn btn-sm btn-success mt-1" onclick="applyJob('${job.id}')">Apply</button>`;
-    jobList.appendChild(div);
-  });
-}
-
-async function applyJob(job_id){
-  const email = JSON.parse(sessionStorage.getItem("user")).email;
-  const res = await fetch(`${backendURL}/apply-job`,{
-    method:"POST",
-    body: new URLSearchParams({applicant_email:email, job_id})
-  });
-  const data = await res.json();
-  alert(data.message || data.error);
-  loadAppliedJobs();
-}
-
-async function loadAppliedJobs(){
-  const email = JSON.parse(sessionStorage.getItem("user")).email;
-  const res = await fetch(`${backendURL}/applicant/applied-jobs/${email}`);
-  const data = await res.json();
-  const list = document.getElementById("appliedList");
-  list.innerHTML="";
-  data.applied_jobs.forEach(job=>{
-    const div = document.createElement("div");
-    div.className="border p-2 my-2";
-    div.innerHTML = `<b>${job.title}</b> - Status: ${job.status}`;
-    list.appendChild(div);
-  });
-}
-
-async function loadMessages(){
-  const email = JSON.parse(sessionStorage.getItem("user")).email;
-  const res = await fetch(`${backendURL}/applicant/messages/${email}`);
-  const data = await res.json();
-  const list = document.getElementById("msgList");
-  list.innerHTML="";
-  data.messages.forEach(msg=>{
-    const div = document.createElement("div");
-    div.className="border p-2 my-2";
-    div.innerHTML=`<b>From: ${msg.from}</b><br>${msg.message}`;
-    list.appendChild(div);
-  });
-}
-
-// ---------- HR Functions ----------
-document.getElementById("postJobForm").addEventListener("submit", async e=>{
+// Post Job
+document.getElementById('postJobForm').addEventListener('submit', (e)=>{
   e.preventDefault();
-  const hr = JSON.parse(sessionStorage.getItem("user")).email;
-  const res = await fetch(`${backendURL}/hr/post-job`,{
-    method:"POST",
-    body: new URLSearchParams({
-      hr_email: hr,
-      title: document.getElementById("jobTitle").value,
-      description: document.getElementById("jobDesc").value,
-      location: document.getElementById("jobLoc").value,
-      salary: document.getElementById("jobSalary").value,
-      skills_required: document.getElementById("jobSkills").value,
-      experience_required: document.getElementById("jobExp").value,
-      end_date: document.getElementById("jobEnd").value
-    })
-  });
-  const data = await res.json();
-  alert(data.message);
-  loadHRJobs();
+  let job = {
+    id: Date.now(),
+    title: document.getElementById('jobTitle').value,
+    role: document.getElementById('jobRole').value,
+    experience: document.getElementById('jobExperience').value,
+    skills: document.getElementById('jobSkills').value.split(','),
+    salary: document.getElementById('jobSalary').value,
+    endDate: document.getElementById('jobEndDate').value,
+    description: document.getElementById('jobDescription').value
+  };
+  jobs.push(job);
+  alert('Job Posted! (Session Only)');
+  renderPostedJobs();
 });
 
-async function loadHRJobs(){
-  const hrEmail = JSON.parse(sessionStorage.getItem("user")).email;
-  const res = await fetch(`${backendURL}/jobs`);
-  const data = await res.json();
-  const hrJobs = document.getElementById("hrJobs");
-  hrJobs.innerHTML="";
-  data.jobs.filter(j=>j.posted_by==hrEmail).forEach(job=>{
-    const div = document.createElement("div");
-    div.className="border p-2 my-2";
-    div.innerHTML=`<b>${job.title}</b> - ${job.location}<br>Exp: ${job.experience_required}<br>
-    <button class="btn btn-sm btn-primary mt-1" onclick="viewApplications('${job.id}')">View Applications</button>`;
-    hrJobs.appendChild(div);
+// Render Job Feed (Applicant)
+function renderJobFeed(){
+  let feed = document.getElementById('jobFeed');
+  feed.innerHTML = '';
+  jobs.forEach(job=>{
+    let match = job.skills.every(s=>applicantData.skills.includes(s.trim()));
+    let card = `<div class="job-card">
+      <h5>${job.title} - ${job.role}</h5>
+      <p><strong>Company:</strong> ${hrData.companyName || 'Company'}</p>
+      <p><strong>Salary:</strong> ${job.salary}</p>
+      <p><strong>Experience Required:</strong> ${job.experience} years</p>
+      <p>${job.description}</p>
+      <button class="btn btn-primary" onclick="applyJob(${job.id})" ${!match?'disabled':''}>${match?'Apply':'Cannot Apply'}</button>
+    </div>`;
+    feed.innerHTML += card;
   });
 }
 
-async function viewApplications(job_id){
-  const res = await fetch(`${backendURL}/applications/${job_id}`);
-  const data = await res.json();
-  let html = "";
-  data.applications.forEach(app=>{
-    html+=`<div class="border p-2 my-2">
-    <b>${app.applicant_email}</b> - Status: ${app.status} <br>
-    <button onclick="updateStatus('${job_id}','${app.applicant_email}','Shortlisted')">Shortlist</button>
-    <button onclick="updateStatus('${job_id}','${app.applicant_email}','Rejected')">Reject</button>
-    <button onclick="sendMsg('${job_id}','${app.applicant_email}')">Message</button>
+// Apply Job
+function applyJob(jobId){
+  let job = jobs.find(j=>j.id===jobId);
+  applications.push({jobId: job.id, applicantEmail: applicantData.email, status: 'Viewed', message: ''});
+  alert('Applied Successfully!');
+  renderAppliedJobs();
+}
+
+// Render Applied Jobs
+function renderAppliedJobs(){
+  let applied = document.getElementById('appliedJobs');
+  applied.innerHTML = '';
+  applications.forEach(app=>{
+    let job = jobs.find(j=>j.id===app.jobId);
+    let badgeClass = app.status==='Viewed'?'status-viewed':app.status==='Shortlisted'?'status-shortlisted':'status-rejected';
+    applied.innerHTML += `<div class="job-card">
+      <h5>${job.title}</h5>
+      <p><strong>Company:</strong> ${hrData.companyName || 'Company'}</p>
+      <p>Status: <span class="status-badge ${badgeClass}">${app.status}</span></p>
     </div>`;
   });
-  alert(html); // simple popup, can be replaced with modal
 }
 
-async function updateStatus(job_id,email,status){
-  const res = await fetch(`${backendURL}/hr/update-status`,{
-    method:"POST",
-    body: new URLSearchParams({job_id, applicant_email: email, status})
+// Render Applicant Profile
+function renderApplicantProfile(){
+  let profile = document.getElementById('profileInfo');
+  profile.innerHTML = `<strong>Name:</strong> ${applicantData.name}<br>
+  <strong>Email:</strong> ${applicantData.email}<br>
+  <strong>Contact:</strong> ${applicantData.contact}<br>
+  <strong>Age:</strong> ${applicantData.age}<br>
+  <strong>Skills:</strong> ${applicantData.skills.join(', ')}<br>
+  <strong>Experience:</strong> ${applicantData.experience} years<br>
+  <strong>Degree:</strong> ${applicantData.degree}<br>
+  <strong>University:</strong> ${applicantData.university}`;
+}
+
+// Render HR Profile
+function renderHrProfile(){
+  let profile = document.getElementById('hrProfileInfo');
+  profile.innerHTML = `<strong>HR Name:</strong> ${hrData.hrName}<br>
+  <strong>Company:</strong> ${hrData.companyName}<br>
+  <strong>Email:</strong> ${hrData.email}<br>
+  <strong>Contact:</strong> ${hrData.contact}<br>
+  <strong>Description:</strong> ${hrData.description}`;
+}
+
+// Render Posted Jobs (HR)
+function renderPostedJobs(){
+  let posted = document.getElementById('postedJobs');
+  posted.innerHTML = '';
+  jobs.forEach(job=>{
+    posted.innerHTML += `<div class="job-card">
+      <h5>${job.title}</h5>
+      <p>Role: ${job.role}</p>
+      <p>Experience: ${job.experience} years</p>
+      <p>Salary: ${job.salary}</p>
+      <p>${job.description}</p>
+      <button class="btn btn-primary" onclick="deleteJob(${job.id})">Delete</button>
+    </div>`;
   });
-  const data = await res.json();
-  alert(data.message);
-  loadHRJobs();
 }
 
-function sendMsg(job_id,email){
-  const hr = JSON.parse(sessionStorage.getItem("user")).email;
-  const msg = prompt("Enter message:");
-  if(msg){
-    fetch(`${backendURL}/hr/message`,{
-      method:"POST",
-      body: new URLSearchParams({job_id, applicant_email:email, hr_email:hr, message:msg})
-    }).then(r=>r.json()).then(d=>{alert(d.message);});
-  }
+// Delete Job (HR)
+function deleteJob(jobId){
+  jobs = jobs.filter(j=>j.id!==jobId);
+  applications = applications.filter(a=>a.jobId!==jobId);
+  renderPostedJobs();
+  renderJobFeed();
 }
+
+// Initial load
+showSection('home');
 </script>
 
 </body>
