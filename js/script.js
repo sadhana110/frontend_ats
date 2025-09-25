@@ -112,6 +112,52 @@ function applyJob(id){
   alert('Applied successfully');
 }
 
+
+// Get current user from localStorage
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+if (!currentUser) {
+    alert('Please login first');
+    window.location.href = 'login.html';
+}
+
+// Fetch all jobs from backend
+async function fetchJobs() {
+    try {
+        const res = await fetch('https://backend-ats-z0tb.onrender.com/jobs');
+        const allJobs = await res.json();
+        displayDashboard(allJobs);
+    } catch(err){
+        console.error(err);
+        document.getElementById('dashboard-content').innerHTML = '<p>Error loading jobs.</p>';
+    }
+}
+
+// Display jobs in dashboard
+function displayDashboard(jobs) {
+    const dash = document.getElementById('dashboard-content');
+    dash.innerHTML = `<h4>Welcome ${currentUser.name} (${currentUser.role})</h4>`;
+    
+    if (currentUser.role === 'applicant') {
+        const appliedJobs = jobs.filter(j => j.applied.includes(currentUser.email));
+        dash.innerHTML += `<h5 class="mt-4">Applied Jobs:</h5>`;
+        if (appliedJobs.length === 0) dash.innerHTML += '<p>No jobs applied yet</p>';
+        appliedJobs.forEach(j => {
+            dash.innerHTML += `<div class="job-card"><h5>${j.title}</h5><p>${j.company} | ${j.location}</p></div>`;
+        });
+    } else if (currentUser.role === 'employer') {
+        const myJobs = jobs.filter(j => j.company === currentUser.name);
+        dash.innerHTML += `<h5 class="mt-4">Posted Jobs:</h5>`;
+        if (myJobs.length === 0) dash.innerHTML += '<p>No jobs posted yet</p>';
+        myJobs.forEach(j => {
+            dash.innerHTML += `<div class="job-card"><h5>${j.title}</h5><p>${j.location} | ${j.type}</p><p>Applied: ${j.applied.length}</p></div>`;
+        });
+    }
+}
+
+// Call fetch
+fetchJobs();
+
 // Dashboard & Job Detail
 function showDashboard(){
   if(!currentUser)return;
