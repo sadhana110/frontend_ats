@@ -2,39 +2,61 @@ let jobs = [];
 let users = [];
 let currentUser = null;
 
-// Registration
-function toggleApplicantFields(){
-  const role=document.getElementById('register-role').value;
-  document.getElementById('applicant-fields').style.display=role==='applicant'?'block':'none';
-}
-
-document.getElementById('register-form')?.addEventListener('submit',function(e){
-  e.preventDefault();
-  const user={
-    name: document.getElementById('register-name').value,
-    email: document.getElementById('register-email').value,
-    password: document.getElementById('register-password').value,
-    role: document.getElementById('register-role').value,
-    resume: document.getElementById('register-resume')?.files[0],
-    experience: document.getElementById('register-experience')?.value,
-    skills: document.getElementById('register-skills')?.value,
-    education: document.getElementById('register-education')?.value
-  };
-  users.push(user);
-  alert('Registered successfully!');
-  window.location.href='login.html';
+// ----- Register -----
+document.getElementById('register-form')?.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const role = document.getElementById('register-role').value;
+    const data = {
+        name: document.getElementById('register-name').value,
+        email: document.getElementById('register-email').value,
+        password: document.getElementById('register-password').value,
+        role: role,
+        resume: document.getElementById('register-resume')?.files[0]?.name || "",
+        experience: document.getElementById('register-experience')?.value,
+        skills: document.getElementById('register-skills')?.value,
+        education: document.getElementById('register-education')?.value
+    };
+    try {
+        const res = await fetch('https://backend-ats-z0tb.onrender.com/register', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if(res.ok){
+            alert('Registered successfully!');
+            window.location.href='login.html';
+        } else {
+            alert(result.error);
+        }
+    } catch(err) { alert('Error connecting to backend'); }
 });
 
-// Login
-document.getElementById('login-form')?.addEventListener('submit',function(e){
-  e.preventDefault();
-  const email=document.getElementById('login-email').value;
-  const password=document.getElementById('login-password').value;
-  const role=document.getElementById('login-role').value;
-  const user=users.find(u=>u.email===email&&u.password===password&&u.role===role);
-  if(user){currentUser=user; alert('Login successful'); window.location.href='dashboard.html';}
-  else alert('Invalid credentials');
+// ----- Login -----
+document.getElementById('login-form')?.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const data = {
+        email: document.getElementById('login-email').value,
+        password: document.getElementById('login-password').value,
+        role: document.getElementById('login-role').value
+    };
+    try {
+        const res = await fetch('https://backend-ats-z0tb.onrender.com/login', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if(res.ok){
+            alert('Login successful!');
+            localStorage.setItem('currentUser', JSON.stringify(result.user));
+            window.location.href='dashboard.html';
+        } else {
+            alert(result.error);
+        }
+    } catch(err){ alert('Error connecting to backend'); }
 });
+
 
 // Post Job
 document.getElementById('post-job-form')?.addEventListener('submit',function(e){
