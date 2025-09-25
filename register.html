@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register | NaukriClone</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container my-5">
+  <h2 class="text-center mb-4">Register</h2>
+  <form id="register-form">
+    <div class="mb-3">
+      <label>Full Name</label>
+      <input type="text" class="form-control" id="register-name" required>
+    </div>
+    <div class="mb-3">
+      <label>Email</label>
+      <input type="email" class="form-control" id="register-email" required>
+    </div>
+    <div class="mb-3">
+      <label>Password</label>
+      <input type="password" class="form-control" id="register-password" required>
+    </div>
+    <div class="mb-3">
+      <label>Role</label>
+      <select class="form-control" id="register-role" onchange="toggleApplicantFields()">
+        <option value="applicant">Applicant</option>
+        <option value="employer">Employer</option>
+      </select>
+    </div>
+
+    <div id="applicant-fields">
+      <div class="mb-3">
+        <label>Upload Resume (PDF)</label>
+        <input type="file" class="form-control" id="register-resume">
+      </div>
+      <div class="mb-3">
+        <label>Experience (Years)</label>
+        <input type="number" class="form-control" id="register-experience">
+      </div>
+      <div class="mb-3">
+        <label>Skills</label>
+        <input type="text" class="form-control" id="register-skills" placeholder="Comma separated">
+      </div>
+      <div class="mb-3">
+        <label>Education</label>
+        <input type="text" class="form-control" id="register-education">
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
