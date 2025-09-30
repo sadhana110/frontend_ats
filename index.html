@@ -1,25 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Job Portal - Naukri Clone</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naukri Clone Full SPA</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: Arial, sans-serif; background:#f4f6f9; }
+header { background: #0d6efd; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;}
+header h1 { margin:0; }
+nav a { color:white; margin-left:15px; text-decoration:none; font-weight:bold; }
+section { padding:20px; }
+.card { margin-bottom:15px; }
+.progress { height:20px; }
+.hidden { display:none; }
+.red-dot { height:10px; width:10px; border-radius:50%; background:red; display:inline-block; }
+button.back-btn { margin-top:10px; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Job Portal</h1>
-    <nav>
-      <a href="login.html">Login</a>
-      <a href="register_candidate.html">Register as Candidate</a>
-      <a href="register_recruiter.html">Register as Recruiter</a>
-    </nav>
-  </header>
 
-  <main>
-    <section class="hero">
-      <h2>Your Dream Job Awaits</h2>
-      <p>Search and apply to thousands of jobs, just like Naukri & Indeed.</p>
-    </section>
-  </main>
+<header>
+<h1>Naukri Clone</h1>
+<nav>
+<a href="#" id="navLanding">Home</a>
+<a href="#" id="navLogin">Login</a>
+<a href="#" id="navCandidateRegister">Register Candidate</a>
+<a href="#" id="navRecruiterRegister">Register Recruiter</a>
+<a href="#" id="navLogout" class="hidden">Logout</a>
+</nav>
+</header>
+
+<!-- Landing Page -->
+<section id="landingSection">
+<div class="text-center my-5">
+<h2>Find Your Dream Job</h2>
+<p>Search thousands of jobs, apply easily, and get noticed by recruiters!</p>
+<button class="btn btn-primary me-2" id="btnLogin">Login</button>
+<button class="btn btn-success me-2" id="btnCandidateRegister">Register as Candidate</button>
+<button class="btn btn-warning" id="btnRecruiterRegister">Register as Recruiter</button>
+</div>
+</section>
+
+<!-- Login Section -->
+<section id="loginSection" class="hidden">
+<h2>Login</h2>
+<form id="loginForm">
+<div class="mb-3"><label>Email</label><input type="email" id="loginEmail" class="form-control" required></div>
+<div class="mb-3"><label>Password</label><input type="password" id="loginPassword" class="form-control" required></div>
+<div class="mb-3"><label>Role</label>
+<select id="loginRole" class="form-select">
+<option value="candidate">Candidate</option>
+<option value="recruiter">Recruiter</option>
+<option value="admin">Admin</option>
+</select>
+</div>
+<button type="submit" class="btn btn-primary">Login</button>
+<button type="button" class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+<p class="mt-2">New user? 
+<a href="#" id="linkCandidateRegister">Register as Candidate</a> | 
+<a href="#" id="linkRecruiterRegister">Register as Recruiter</a>
+</p>
+</form>
+</section>
+
+<!-- Candidate Registration -->
+<section id="candidateRegisterSection" class="hidden">
+<h2>Candidate Registration</h2>
+<div class="progress mb-3">
+<div id="candidateProgress" class="progress-bar bg-success" style="width:33%">Step 1</div>
+</div>
+<div id="candidateStep1">
+<h4>Personal Details</h4>
+<input type="text" id="c_name" placeholder="Full Name" class="form-control mb-2">
+<input type="email" id="c_email" placeholder="Email" class="form-control mb-2">
+<input type="password" id="c_password" placeholder="Password" class="form-control mb-2">
+<input type="text" id="c_phone" placeholder="Phone Number" class="form-control mb-2">
+<input type="date" id="c_dob" class="form-control mb-2">
+<button class="btn btn-primary" id="cNext1">Next</button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+<div id="candidateStep2" class="hidden">
+<h4>Education & Skills</h4>
+<textarea id="c_education" placeholder="10th, 12th, UG, PG, Certifications" class="form-control mb-2"></textarea>
+<input type="text" id="c_skills" placeholder="Skills (comma separated)" class="form-control mb-2">
+<button class="btn btn-secondary" id="cBack2">Back</button>
+<button class="btn btn-primary" id="cNext2">Next</button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+<div id="candidateStep3" class="hidden">
+<h4>Experience & Resume</h4>
+<textarea id="c_experience" placeholder="Experience or Fresher" class="form-control mb-2"></textarea>
+<input type="file" id="c_resume" class="form-control mb-2">
+<button class="btn btn-secondary" id="cBack3">Back</button>
+<button class="btn btn-success" id="cSubmit">Submit</button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+</section>
+
+<!-- Recruiter Registration -->
+<section id="recruiterRegisterSection" class="hidden">
+<h2>Recruiter Registration</h2>
+<div class="progress mb-3">
+<div id="recruiterProgress" class="progress-bar bg-warning" style="width:33%">Step 1</div>
+</div>
+<div id="recruiterStep1">
+<h4>Personal Details</h4>
+<input type="text" id="r_name" placeholder="Full Name" class="form-control mb-2">
+<input type="email" id="r_email" placeholder="Email" class="form-control mb-2">
+<input type="password" id="r_password" placeholder="Password" class="form-control mb-2">
+<input type="text" id="r_phone" placeholder="Phone Number" class="form-control mb-2">
+<button class="btn btn-primary" id="rNext1">Next</button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+<div id="recruiterStep2" class="hidden">
+<h4>Company Details</h4>
+<input type="text" id="r_company" placeholder="Company Name" class="form-control mb-2">
+<input type="text" id="r_industry" placeholder="Industry" class="form-control mb-2">
+<input type="text" id="r_designation" placeholder="Designation" class="form-control mb-2">
+<button class="btn btn-secondary" id="rBack2">Back</button>
+<button class="btn btn-primary" id="rNext2">Next</button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+<div id="recruiterStep3" class="hidden">
+<h4>Experience</h4>
+<input type="text" id="r_experience" placeholder="Years of Experience" class="form-control mb-2">
+<button class="btn btn-secondary" id="rBack3">Back</button>
+<button class="btn btn-success" id="rSubmit">Submit</button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+
+<!-- Candidate Dashboard -->
+<section id="candidateDashboard" class="hidden">
+<h2>Candidate Dashboard</h2>
+<div class="mb-3">
+<button class="btn btn-secondary me-2" id="cProfileBtn">Profile</button>
+<button class="btn btn-primary me-2" id="cJobsBtn">Job Search</button>
+<button class="btn btn-warning me-2" id="cAppliedBtn">Applied Jobs</button>
+<button class="btn btn-success me-2" id="cSavedBtn">Saved Jobs</button>
+<button class="btn btn-info" id="cMessageBtn">Messages <span id="cMessageDot" class="red-dot hidden"></span></button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+<div id="candidateContent"></div>
+</section>
+
+<!-- Recruiter Dashboard -->
+<section id="recruiterDashboard" class="hidden">
+<h2>Recruiter Dashboard</h2>
+<div class="mb-3">
+<button class="btn btn-secondary me-2" id="rPostJobBtn">Post Job</button>
+<button class="btn btn-primary me-2" id="rPostedJobsBtn">Posted Jobs</button>
+<button class="btn btn-warning me-2" id="rApplicantsBtn">Applicants</button>
+<button class="btn btn-info" id="rMessageBtn">Messages <span id="rMessageDot" class="red-dot hidden"></span></button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+<div id="recruiterContent"></div>
+</section>
+
+<!-- Admin Dashboard -->
+<section id="adminDashboard" class="hidden">
+<h2>Admin Dashboard</h2>
+<div class="mb-3">
+<button class="btn btn-primary me-2" id="adminStatsBtn">Stats</button>
+<button class="btn btn-warning me-2" id="adminReportsBtn">Reports</button>
+<button class="btn btn-info me-2" id="adminMessageBtn">Messages</button>
+<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
+</div>
+<div id="adminContent"></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const API="https://backend-ats-z0tb.onrender.com";
+let currentUser=null;
+
+// Navigation
+document.getElementById("navLanding").onclick=()=>showSection("landingSection");
+document.getElementById("navLogin").onclick=()=>showSection("loginSection");
+document.getElementById("navCandidateRegister").onclick=()=>showSection("candidateRegisterSection");
+document.getElementById("navRecruiterRegister").onclick=()=>showSection("recruiterRegisterSection");
+document.getElementById("navLogout").onclick=logout;
+
+document.getElementById("btnLogin").onclick=()=>showSection("loginSection");
+document.getElementById("btnCandidateRegister").onclick=()=>showSection("candidateRegisterSection");
+document.getElementById("btnRecruiterRegister").onclick=()=>showSection("recruiterRegisterSection");
+document.getElementById("linkCandidateRegister").onclick=()=>showSection("candidateRegisterSection");
+document.getElementById("linkRecruiterRegister").onclick=()=>showSection("recruiterRegisterSection");
+
+function showSection(id){
+  ["landingSection","loginSection","candidateRegisterSection","recruiterRegisterSection","candidateDashboard","recruiterDashboard","adminDashboard"].forEach(s=>document.getElementById(s).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function logout(){ currentUser=null; localStorage.removeItem("user"); document.getElementById("navLogout").classList.add("hidden"); showSection("landingSection"); }
+
+// Multi-step Candidate Registration
+document.getElementById("cNext1").onclick=()=>{ document.getElementById("candidateStep1").classList.add("hidden"); document.getElementById("candidateStep2").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="66%";}
+document.getElementById("cBack2").onclick=()=>{ document.getElementById("candidateStep2").classList.add("hidden"); document.getElementById("candidateStep1").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="33%";}
+document.getElementById("cNext2").onclick=()=>{ document.getElementById("candidateStep2").classList.add("hidden"); document.getElementById("candidateStep3").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="100%";}
+document.getElementById("cBack3").onclick=()=>{ document.getElementById("candidateStep3").classList.add("hidden"); document.getElementById("candidateStep2").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="66%";}
+
+// Multi-step Recruiter Registration
+document.getElementById("rNext1").onclick=()=>{ document.getElementById("recruiterStep1").classList.add("hidden"); document.getElementById("recruiterStep2").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="66%";}
+document.getElementById("rBack2").onclick=()=>{ document.getElementById("recruiterStep2").classList.add("hidden"); document.getElementById("recruiterStep1").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="33%";}
+document.getElementById("rNext2").onclick=()=>{ document.getElementById("recruiterStep2").classList.add("hidden"); document.getElementById("recruiterStep3").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="100%";}
+document.getElementById("rBack3").onclick=()=>{ document.getElementById("recruiterStep3").classList.add("hidden"); document.getElementById("recruiterStep2").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="66%";}
+
+// Submit Candidate
+document.getElementById("cSubmit").onclick=async ()=>{
+let payload={name:document.getElementById("c_name").value,email:document.getElementById("c_email").value,password:document.getElementById("c_password").value,phone:document.getElementById("c_phone").value,dob:document.getElementById("c_dob").value,education:document.getElementById("c_education").value,skills:document.getElementById("c_skills").value,experience:document.getElementById("c_experience").value};
+let res=await fetch(API+"/register_candidate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+let data=await res.json(); alert(data.message); showSection("loginSection");
+};
+
+// Submit Recruiter
+document.getElementById("rSubmit").onclick=async ()=>{
+let payload={name:document.getElementById("r_name").value,email:document.getElementById("r_email").value,password:document.getElementById("r_password").value,phone:document.getElementById("r_phone").value,company:document.getElementById("r_company").value,industry:document.getElementById("r_industry").value,designation:document.getElementById("r_designation").value,experience:document.getElementById("r_experience").value};
+let res=await fetch(API+"/register_recruiter",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+let data=await res.json(); alert(data.message); showSection("loginSection");
+};
+
+// Login
+document.getElementById("loginForm").onsubmit=async (e)=>{
+e.preventDefault();
+const email=document.getElementById("loginEmail").value;
+const password=document.getElementById("loginPassword").value;
+const role=document.getElementById("loginRole").value;
+let res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password,role})});
+let data=await res.json();
+if(data.success){currentUser=data.user; localStorage.setItem("user",JSON.stringify(currentUser)); document.getElementById("navLogout").classList.remove("hidden");
+if(role==="candidate") loadCandidateDashboard();
+if(role==="recruiter") loadRecruiterDashboard();
+if(role==="admin") loadAdminDashboard();
+} else { alert(data.message); }
+};
+
+// ========= CANDIDATE LOGIC =========
+async function loadCandidateDashboard(){
+showSection("candidateDashboard");
+document.getElementById("candidateContent").innerHTML='<p>Loading jobs...</p>';
+
+// Load jobs from backend
+let res=await fetch(API+"/jobs");
+let jobs=await res.json();
+let html='<h3>Available Jobs</h3><div class="row">';
+jobs.forEach(job=>{
+html+=`<div class="col-md-4"><div class="card p-3">
+<h5>${job.title}</h5>
+<p>Company: ${job.company}</p>
+<p>Location: ${job.location || "Not specified"}</p>
+<p>Skills: ${job.skills}</p>
+<p>Vacancies: ${job.vacancy}</p>
+<p>Posted: ${new Date(job.posted).toLocaleDateString()}</p>
+<button class="btn btn-primary mb-2" onclick='applyJob("${job._id}")'>Apply</button>
+<button class="btn btn-warning mb-2" onclick='saveJob("${job._id}")'>Save Job</button>
+</div></div>`;
+});
+html+='</div>';
+document.getElementById("candidateContent").innerHTML=html;
+}
+
+// Apply job
+async function applyJob(jobId){
+let res=await fetch(API+"/apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({candidateId:currentUser._id,jobId})});
+let data=await res.json(); alert(data.message); loadCandidateDashboard();
+}
+
+// Save job
+async function saveJob(jobId){
+let res=await fetch(API+"/save_job",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({candidateId:currentUser._id,jobId})});
+let data=await res.json(); alert(data.message); loadCandidateDashboard();
+}
+
+// ========= RECRUITER LOGIC =========
+async function loadRecruiterDashboard(){
+showSection("recruiterDashboard");
+document.getElementById("recruiterContent").innerHTML='<p>Loading posted jobs...</p>';
+
+// Load posted jobs
+let res=await fetch(API+"/recruiter_jobs/"+currentUser._id);
+let jobs=await res.json();
+let html='<h3>Your Posted Jobs</h3><div class="row">';
+jobs.forEach(job=>{
+html+=`<div class="col-md-4"><div class="card p-3">
+<h5>${job.title}</h5>
+<p>Vacancy: ${job.vacancy}</p>
+<p>Posted: ${new Date(job.posted).toLocaleDateString()}</p>
+<p>Status: ${job.status}</p>
+<button class="btn btn-success mb-2" onclick='viewApplicants("${job._id}")'>View Applicants</button>
+<button class="btn btn-primary mb-2" onclick='editJob("${job._id}")'>Edit</button>
+<button class="btn btn-danger mb-2" onclick='deleteJob("${job._id}")'>Delete</button>
+</div></div>`;
+});
+html+='</div><button class="btn btn-warning mt-3" onclick="postJobForm()">Post New Job</button>';
+document.getElementById("recruiterContent").innerHTML=html;
+}
+
+// Post job form
+function postJobForm(){
+document.getElementById("recruiterContent").innerHTML=`
+<h3>Post New Job</h3>
+<input class="form-control mb-2" id="jobTitle" placeholder="Job Title">
+<input class="form-control mb-2" id="jobSkills" placeholder="Required Skills">
+<input type="number" class="form-control mb-2" id="jobVacancy" placeholder="Vacancy">
+<input type="date" class="form-control mb-2" id="jobStart" placeholder="Start Date">
+<input type="date" class="form-control mb-2" id="jobEnd" placeholder="End Date">
+<button class="btn btn-success mb-2" onclick="postJob()">Submit</button>
+<button class="btn btn-secondary back-btn" onclick="loadRecruiterDashboard()">Back</button>
+`;
+}
+
+// Post job API
+async function postJob(){
+let payload={recruiterId:currentUser._id,title:document.getElementById("jobTitle").value,skills:document.getElementById("jobSkills").value,vacancy:document.getElementById("jobVacancy").value,start:document.getElementById("jobStart").value,end:document.getElementById("jobEnd").value};
+let res=await fetch(API+"/post_job",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+let data=await res.json(); alert(data.message); loadRecruiterDashboard();
+}
+
+// View applicants
+async function viewApplicants(jobId){
+let res=await fetch(API+"/applicants/"+jobId);
+let apps=await res.json();
+let html='<h3>Applicants</h3>';
+apps.forEach(app=>{
+html+=`<div class="card p-2 mb-2">
+<h5>${app.name}</h5>
+<p>Email: ${app.email}</p>
+<p>Skills: ${app.skills}</p>
+<button class="btn btn-success mb-1" onclick='shortlist("${jobId}","${app._id}")'>Shortlist</button>
+<button class="btn btn-danger mb-1" onclick='reject("${jobId}","${app._id}")'>Reject</button>
+<button class="btn btn-info mb-1" onclick='messageCandidate("${app._id}")'>Message</button>
+</div>`;
+});
+html+='<button class="btn btn-secondary back-btn" onclick="loadRecruiterDashboard()">Back</button>';
+document.getElementById("recruiterContent").innerHTML=html;
+}
+
+async function shortlist(jobId,candidateId){
+let res=await fetch(API+"/shortlist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId,candidateId})});
+let data=await res.json(); alert(data.message); viewApplicants(jobId);
+}
+async function reject(jobId,candidateId){
+let res=await fetch(API+"/reject",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId,candidateId})});
+let data=await res.json(); alert(data.message); viewApplicants(jobId);
+}
+
+// ========= ADMIN LOGIC =========
+async function loadAdminDashboard(){
+showSection("adminDashboard");
+document.getElementById("adminContent").innerHTML='<p>Loading stats...</p>';
+let statsRes=await fetch(API+"/admin_stats");
+let stats=await statsRes.json();
+
+let html=`<div class="row">
+<div class="col-md-3"><div class="card p-3 bg-primary text-white">Candidates: ${stats.candidates}</div></div>
+<div class="col-md-3"><div class="card p-3 bg-warning text-dark">Recruiters: ${stats.recruiters}</div></div>
+<div class="col-md-3"><div class="card p-3 bg-success text-white">Jobs: ${stats.jobs}</div></div>
+<div class="col-md-3"><div class="card p-3 bg-danger text-white">Reports: ${stats.reports}</div></div>
+</div>`;
+document.getElementById("adminContent").innerHTML=html+'<canvas id="adminChart" height="100"></canvas>';
+let ctx=document.getElementById('adminChart').getContext('2d');
+new Chart(ctx,{type:'bar',data:{labels:['Candidates','Recruiters','Jobs','Reports'],datasets:[{label:'Count',data:[stats.candidates,stats.recruiters,stats.jobs,stats.reports],backgroundColor:['blue','orange','green','red']}]},options:{responsive:true}});
+}
+
+
+// === Candidate, Recruiter, Admin functional logic will go here: job search, apply, post job, applicants, messages, reports, analytics ===
+
+// Due to message length limits, I will provide the full JS logic in the next message, fully connected to Render backend.
+</script>
 </body>
 </html>
