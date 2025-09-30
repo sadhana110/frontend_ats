@@ -1,118 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaukriClone</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <title>Naukri Clone</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js" defer></script>
 </head>
 <body>
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-  <div class="container">
-    <a class="navbar-brand fw-bold text-warning" href="index.html">NaukriClone</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Jobs</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">IT Jobs</a></li>
-            <li><a class="dropdown-item" href="#">Engineering Jobs</a></li>
-            <li><a class="dropdown-item" href="#">Finance Jobs</a></li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Services</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Resume Writing</a></li>
-            <li><a class="dropdown-item" href="#">Career Guidance</a></li>
-          </ul>
-        </li>
-        <li class="nav-item"><a class="nav-link" href="#">For Employers</a></li>
-      </ul>
-      <ul class="navbar-nav align-items-center">
-        <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-        <li class="nav-item"><a class="nav-link btn btn-warning text-white ms-2" href="register.html">Register</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- Hero Section -->
-<section class="hero py-5 text-center bg-light">
-  <div class="container">
-    <h1 class="fw-bold mb-3">Search Jobs, Apply Easily, Get Hired Faster</h1>
-    <div class="d-flex justify-content-center flex-wrap gap-2">
-      <input type="text" id="job-title" class="form-control w-50" placeholder="Job title, skills">
-      <input type="text" id="job-location" class="form-control w-25" placeholder="Location">
-      <button class="btn btn-warning" onclick="searchJobs()">Search</button>
-    </div>
-  </div>
-</section>
-
-<!-- Jobs + Filters -->
-<section class="container my-5">
-  <div class="row">
-    <div class="col-lg-3 mb-4">
-      <div class="sticky-top" style="top: 100px;">
-        <h5 class="fw-bold mb-3">Filter Jobs</h5>
-        <div class="mb-2">
-          <label>Experience</label>
-          <select id="filter-experience" class="form-select">
-            <option value="">Any</option>
-            <option value="0-1">Fresher</option>
-            <option value="1-3">1-3 yrs</option>
-            <option value="3-5">3-5 yrs</option>
-            <option value="5+">5+ yrs</option>
-          </select>
-        </div>
-        <div class="mb-2">
-          <label>Job Type</label>
-          <select id="filter-type" class="form-select">
-            <option value="">Any</option>
-            <option>Full-Time</option>
-            <option>Part-Time</option>
-            <option>Internship</option>
-            <option>Contract</option>
-          </select>
-        </div>
-        <div class="mb-2">
-          <label>Company</label>
-          <input type="text" id="filter-company" class="form-control" placeholder="Company name">
-        </div>
-        <button class="btn btn-primary w-100 mt-2" onclick="applyFilters()">Apply</button>
-      </div>
-    </div>
-
-    <div class="col-lg-9">
-      <div id="job-list"></div>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-5">
-  <div class="container d-flex flex-wrap justify-content-between">
+  <nav>
+    <h1>Naukri Clone</h1>
     <div>
-      <h5 class="text-warning">NaukriClone</h5>
-      <p>© 2025 Demo. All rights reserved.</p>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
     </div>
-    <div>
-      <ul class="list-unstyled">
-        <li><a href="#" class="text-white text-decoration-none">About</a></li>
-        <li><a href="#" class="text-white text-decoration-none">Terms</a></li>
-        <li><a href="#" class="text-white text-decoration-none">Privacy</a></li>
-      </ul>
-    </div>
-  </div>
-</footer>
-
-<script src="js/script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </nav>
+  <section class="hero">
+    <h2>Find Your Dream Job</h2>
+    <input type="text" id="searchBar" placeholder="Search Jobs...">
+    <button onclick="alert('Please login to search jobs')">Search</button>
+  </section>
 </body>
 </html>
