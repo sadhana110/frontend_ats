@@ -173,202 +173,498 @@ button.back-btn { margin-top:10px; }
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const API="https://backend-ats-z0tb.onrender.com";
-let currentUser=null;
+/*
+  Defensive SPA script for Naukri-clone index.html
+  - Replace your current script with this.
+  - Shows runtime errors in a visible box instead of white screen.
+  - Uses safeFetch for all network calls.
+*/
 
-// Navigation
-document.getElementById("navLanding").onclick=()=>showSection("landingSection");
-document.getElementById("navLogin").onclick=()=>showSection("loginSection");
-document.getElementById("navCandidateRegister").onclick=()=>showSection("candidateRegisterSection");
-document.getElementById("navRecruiterRegister").onclick=()=>showSection("recruiterRegisterSection");
-document.getElementById("navLogout").onclick=logout;
+(function(){
+  const API = "https://backend-ats-z0tb.onrender.com";
 
-document.getElementById("btnLogin").onclick=()=>showSection("loginSection");
-document.getElementById("btnCandidateRegister").onclick=()=>showSection("candidateRegisterSection");
-document.getElementById("btnRecruiterRegister").onclick=()=>showSection("recruiterRegisterSection");
-document.getElementById("linkCandidateRegister").onclick=()=>showSection("candidateRegisterSection");
-document.getElementById("linkRecruiterRegister").onclick=()=>showSection("recruiterRegisterSection");
+  // create visible error box
+  const errBox = document.createElement("div");
+  errBox.id = "jsErrorBox";
+  errBox.style.position = "fixed";
+  errBox.style.left = "10px";
+  errBox.style.right = "10px";
+  errBox.style.bottom = "10px";
+  errBox.style.background = "#fff3f3";
+  errBox.style.border = "1px solid #ff6b6b";
+  errBox.style.color = "#800";
+  errBox.style.padding = "10px";
+  errBox.style.zIndex = "99999";
+  errBox.style.display = "none";
+  errBox.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+  document.body.appendChild(errBox);
+  function showError(msg){
+    console.error(msg);
+    errBox.textContent = "ERROR: " + msg;
+    errBox.style.display = "block";
+  }
+  window.onerror = function(message, source, lineno, colno, error){
+    showError(`${message} at ${source}:${lineno}:${colno}`);
+  };
 
-function showSection(id){
-  ["landingSection","loginSection","candidateRegisterSection","recruiterRegisterSection","candidateDashboard","recruiterDashboard","adminDashboard"].forEach(s=>document.getElementById(s).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-}
+  // safeFetch wrapper
+  async function safeFetch(url, opts = {}){
+    try {
+      const res = await fetch(url, opts);
+      if (!res.ok) {
+        // try to extract text for better debugging
+        let text;
+        try { text = await res.text(); } catch(e){ text = res.statusText; }
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      // handle empty responses
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) return await res.json();
+      // try to parse JSON anyway
+      try { return JSON.parse(await res.text()); } catch(e) { return null; }
+    } catch (err) {
+      showError(`Network error calling ${url} — ${err.message}`);
+      return null;
+    }
+  }
 
-function logout(){ currentUser=null; localStorage.removeItem("user"); document.getElementById("navLogout").classList.add("hidden"); showSection("landingSection"); }
+  // Utility: safe query + addEvent
+  function el(id){ return document.getElementById(id) || null; }
+  function onClick(id, fn){
+    const e = el(id);
+    if (e) e.addEventListener('click', fn);
+  }
 
-// Multi-step Candidate Registration
-document.getElementById("cNext1").onclick=()=>{ document.getElementById("candidateStep1").classList.add("hidden"); document.getElementById("candidateStep2").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="66%";}
-document.getElementById("cBack2").onclick=()=>{ document.getElementById("candidateStep2").classList.add("hidden"); document.getElementById("candidateStep1").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="33%";}
-document.getElementById("cNext2").onclick=()=>{ document.getElementById("candidateStep2").classList.add("hidden"); document.getElementById("candidateStep3").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="100%";}
-document.getElementById("cBack3").onclick=()=>{ document.getElementById("candidateStep3").classList.add("hidden"); document.getElementById("candidateStep2").classList.remove("hidden"); document.getElementById("candidateProgress").style.width="66%";}
+  // Show/hide sections
+  const sections = ["landingSection","loginSection","candidateRegisterSection","recruiterRegisterSection","candidateDashboard","recruiterDashboard","adminDashboard"];
+  function showSection(id){
+    sections.forEach(s => {
+      const sEl = el(s);
+      if (sEl) sEl.classList.add("hidden");
+    });
+    const target = el(id);
+    if (target) target.classList.remove("hidden");
+    window.scrollTo(0,0);
+  }
 
-// Multi-step Recruiter Registration
-document.getElementById("rNext1").onclick=()=>{ document.getElementById("recruiterStep1").classList.add("hidden"); document.getElementById("recruiterStep2").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="66%";}
-document.getElementById("rBack2").onclick=()=>{ document.getElementById("recruiterStep2").classList.add("hidden"); document.getElementById("recruiterStep1").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="33%";}
-document.getElementById("rNext2").onclick=()=>{ document.getElementById("recruiterStep2").classList.add("hidden"); document.getElementById("recruiterStep3").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="100%";}
-document.getElementById("rBack3").onclick=()=>{ document.getElementById("recruiterStep3").classList.add("hidden"); document.getElementById("recruiterStep2").classList.remove("hidden"); document.getElementById("recruiterProgress").style.width="66%";}
+  // current user + role storage
+  let currentUser = null;
+  let currentRole = null;
+  function saveUser(user, role){
+    currentUser = user;
+    currentRole = role;
+    localStorage.setItem("spa_user", JSON.stringify(user || null));
+    localStorage.setItem("spa_role", role || "");
+    // show logout link if logged in
+    const navLogout = el("navLogout");
+    if (navLogout) {
+      if (user) navLogout.classList.remove("hidden"); else navLogout.classList.add("hidden");
+    }
+  }
+  function loadUserFromStorage(){
+    try {
+      const u = JSON.parse(localStorage.getItem("spa_user") || "null");
+      const r = localStorage.getItem("spa_role") || null;
+      currentUser = u;
+      currentRole = r;
+      if (u) el("navLogout")?.classList.remove("hidden");
+      return u;
+    } catch(e){ return null; }
+  }
+  loadUserFromStorage();
 
-// Submit Candidate
-document.getElementById("cSubmit").onclick=async ()=>{
-let payload={name:document.getElementById("c_name").value,email:document.getElementById("c_email").value,password:document.getElementById("c_password").value,phone:document.getElementById("c_phone").value,dob:document.getElementById("c_dob").value,education:document.getElementById("c_education").value,skills:document.getElementById("c_skills").value,experience:document.getElementById("c_experience").value};
-let res=await fetch(API+"/register_candidate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-let data=await res.json(); alert(data.message); showSection("loginSection");
-};
+  // Wire nav buttons (only if present)
+  onClick("navLanding", ()=> showSection("landingSection"));
+  onClick("navLogin", ()=> showSection("loginSection"));
+  onClick("navCandidateRegister", ()=> showSection("candidateRegisterSection"));
+  onClick("navRecruiterRegister", ()=> showSection("recruiterRegisterSection"));
+  onClick("navLogout", ()=> { saveUser(null,null); showSection("landingSection"); });
 
-// Submit Recruiter
-document.getElementById("rSubmit").onclick=async ()=>{
-let payload={name:document.getElementById("r_name").value,email:document.getElementById("r_email").value,password:document.getElementById("r_password").value,phone:document.getElementById("r_phone").value,company:document.getElementById("r_company").value,industry:document.getElementById("r_industry").value,designation:document.getElementById("r_designation").value,experience:document.getElementById("r_experience").value};
-let res=await fetch(API+"/register_recruiter",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-let data=await res.json(); alert(data.message); showSection("loginSection");
-};
+  onClick("btnLogin", ()=> showSection("loginSection"));
+  onClick("btnCandidateRegister", ()=> showSection("candidateRegisterSection"));
+  onClick("btnRecruiterRegister", ()=> showSection("recruiterRegisterSection"));
+  onClick("linkCandidateRegister", ()=> showSection("candidateRegisterSection"));
+  onClick("linkRecruiterRegister", ()=> showSection("recruiterRegisterSection"));
 
-// Login
-document.getElementById("loginForm").onsubmit=async (e)=>{
-e.preventDefault();
-const email=document.getElementById("loginEmail").value;
-const password=document.getElementById("loginPassword").value;
-const role=document.getElementById("loginRole").value;
-let res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password,role})});
-let data=await res.json();
-if(data.success){currentUser=data.user; localStorage.setItem("user",JSON.stringify(currentUser)); document.getElementById("navLogout").classList.remove("hidden");
-if(role==="candidate") loadCandidateDashboard();
-if(role==="recruiter") loadRecruiterDashboard();
-if(role==="admin") loadAdminDashboard();
-} else { alert(data.message); }
-};
+  // --- Multi-step registration handlers (safely bind only when elements exist) ---
+  onClick("cNext1", ()=> { el("candidateStep1")?.classList.add("hidden"); el("candidateStep2")?.classList.remove("hidden"); el("candidateProgress") && (el("candidateProgress").style.width = "66%"); });
+  onClick("cBack2", ()=> { el("candidateStep2")?.classList.add("hidden"); el("candidateStep1")?.classList.remove("hidden"); el("candidateProgress") && (el("candidateProgress").style.width = "33%"); });
+  onClick("cNext2", ()=> { el("candidateStep2")?.classList.add("hidden"); el("candidateStep3")?.classList.remove("hidden"); el("candidateProgress") && (el("candidateProgress").style.width = "100%"); });
+  onClick("cBack3", ()=> { el("candidateStep3")?.classList.add("hidden"); el("candidateStep2")?.classList.remove("hidden"); el("candidateProgress") && (el("candidateProgress").style.width = "66%"); });
 
-// ========= CANDIDATE LOGIC =========
-async function loadCandidateDashboard(){
-showSection("candidateDashboard");
-document.getElementById("candidateContent").innerHTML='<p>Loading jobs...</p>';
+  onClick("rNext1", ()=> { el("recruiterStep1")?.classList.add("hidden"); el("recruiterStep2")?.classList.remove("hidden"); el("recruiterProgress") && (el("recruiterProgress").style.width = "66%"); });
+  onClick("rBack2", ()=> { el("recruiterStep2")?.classList.add("hidden"); el("recruiterStep1")?.classList.remove("hidden"); el("recruiterProgress") && (el("recruiterProgress").style.width = "33%"); });
+  onClick("rNext2", ()=> { el("recruiterStep2")?.classList.add("hidden"); el("recruiterStep3")?.classList.remove("hidden"); el("recruiterProgress") && (el("recruiterProgress").style.width = "100%"); });
+  onClick("rBack3", ()=> { el("recruiterStep3")?.classList.add("hidden"); el("recruiterStep2")?.classList.remove("hidden"); el("recruiterProgress") && (el("recruiterProgress").style.width = "66%"); });
 
-// Load jobs from backend
-let res=await fetch(API+"/jobs");
-let jobs=await res.json();
-let html='<h3>Available Jobs</h3><div class="row">';
-jobs.forEach(job=>{
-html+=`<div class="col-md-4"><div class="card p-3">
-<h5>${job.title}</h5>
-<p>Company: ${job.company}</p>
-<p>Location: ${job.location || "Not specified"}</p>
-<p>Skills: ${job.skills}</p>
-<p>Vacancies: ${job.vacancy}</p>
-<p>Posted: ${new Date(job.posted).toLocaleDateString()}</p>
-<button class="btn btn-primary mb-2" onclick='applyJob("${job._id}")'>Apply</button>
-<button class="btn btn-warning mb-2" onclick='saveJob("${job._id}")'>Save Job</button>
-</div></div>`;
-});
-html+='</div>';
-document.getElementById("candidateContent").innerHTML=html;
-}
+  // --- Registration submit (POST) ---
+  onClick("cSubmit", async ()=>{
+    try {
+      const payload = {
+        name: el("c_name")?.value || "",
+        email: el("c_email")?.value || "",
+        password: el("c_password")?.value || "",
+        phone: el("c_phone")?.value || "",
+        dob: el("c_dob")?.value || "",
+        education: el("c_education")?.value || "",
+        skills: el("c_skills")?.value || "",
+        experience: el("c_experience")?.value || ""
+      };
+      const data = await safeFetch(`${API}/register_candidate`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+      if (data) { alert(data.message || "Registered"); showSection("loginSection"); }
+    } catch(err){ showError(err.message); }
+  });
 
-// Apply job
-async function applyJob(jobId){
-let res=await fetch(API+"/apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({candidateId:currentUser._id,jobId})});
-let data=await res.json(); alert(data.message); loadCandidateDashboard();
-}
+  onClick("rSubmit", async ()=>{
+    try {
+      const payload = {
+        name: el("r_name")?.value || "",
+        email: el("r_email")?.value || "",
+        password: el("r_password")?.value || "",
+        phone: el("r_phone")?.value || "",
+        company: el("r_company")?.value || "",
+        industry: el("r_industry")?.value || "",
+        designation: el("r_designation")?.value || "",
+        experience: el("r_experience")?.value || ""
+      };
+      const data = await safeFetch(`${API}/register_recruiter`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+      if (data) { alert(data.message || "Registered"); showSection("loginSection"); }
+    } catch(err) { showError(err.message); }
+  });
 
-// Save job
-async function saveJob(jobId){
-let res=await fetch(API+"/save_job",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({candidateId:currentUser._id,jobId})});
-let data=await res.json(); alert(data.message); loadCandidateDashboard();
-}
+  // --- Login ---
+  const loginForm = el("loginForm");
+  if (loginForm) loginForm.addEventListener("submit", async (ev)=>{
+    ev.preventDefault();
+    try {
+      const email = el("loginEmail")?.value || "";
+      const password = el("loginPassword")?.value || "";
+      const role = el("loginRole")?.value || "candidate";
+      const data = await safeFetch(`${API}/login`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ email, password, role }) });
+      if (!data) return;
+      if (data.success && data.user) {
+        saveUser(data.user, role);
+        alert("Login successful");
+        if (role === "candidate") loadCandidateDashboard();
+        else if (role === "recruiter") loadRecruiterDashboard();
+        else if (role === "admin") loadAdminDashboard();
+      } else {
+        alert(data.message || "Invalid credentials");
+      }
+    } catch(err) { showError(err.message); }
+  });
 
-// ========= RECRUITER LOGIC =========
-async function loadRecruiterDashboard(){
-showSection("recruiterDashboard");
-document.getElementById("recruiterContent").innerHTML='<p>Loading posted jobs...</p>';
+  // ---------------- Candidate functionality ----------------
+  async function loadCandidateDashboard(){
+    try {
+      showSection("candidateDashboard");
+      const target = el("candidateContent");
+      if (!target) return;
+      target.innerHTML = `<p>Loading jobs...</p>`;
+      const jobs = await safeFetch(`${API}/jobs`);
+      if (!jobs) { target.innerHTML = `<p>Unable to load jobs.</p>`; return; }
+      let html = `<h3>Available Jobs</h3><div class="row">`;
+      for (const job of jobs){
+        const title = job.title || job.jobTitle || "Untitled";
+        const company = job.company || job.recruiterName || job.recruiter || "Company";
+        const posted = job.posted ? (new Date(job.posted)).toLocaleDateString() : "";
+        html += `<div class="col-md-4"><div class="card p-3">
+          <h5>${escapeHtml(title)}</h5>
+          <p><strong>${escapeHtml(company)}</strong></p>
+          <p>Location: ${escapeHtml(job.location || "Not specified")}</p>
+          <p>Skills: ${escapeHtml(job.skills || job.skills_required || "")}</p>
+          <p>Vacancies: ${escapeHtml(job.vacancy || job.vacancies || "")}</p>
+          <p>Posted: ${escapeHtml(posted)}</p>
+          <div>
+            <button class="btn btn-primary mb-2" data-jobid="${escapeHtml(job._id || job.id || job.jobId)}" data-action="apply">Apply</button>
+            <button class="btn btn-warning mb-2" data-jobid="${escapeHtml(job._id || job.id || job.jobId)}" data-action="save">Save</button>
+          </div>
+        </div></div>`;
+      }
+      html += `</div>`;
+      html += `<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>`;
+      target.innerHTML = html;
 
-// Load posted jobs
-let res=await fetch(API+"/recruiter_jobs/"+currentUser._id);
-let jobs=await res.json();
-let html='<h3>Your Posted Jobs</h3><div class="row">';
-jobs.forEach(job=>{
-html+=`<div class="col-md-4"><div class="card p-3">
-<h5>${job.title}</h5>
-<p>Vacancy: ${job.vacancy}</p>
-<p>Posted: ${new Date(job.posted).toLocaleDateString()}</p>
-<p>Status: ${job.status}</p>
-<button class="btn btn-success mb-2" onclick='viewApplicants("${job._id}")'>View Applicants</button>
-<button class="btn btn-primary mb-2" onclick='editJob("${job._id}")'>Edit</button>
-<button class="btn btn-danger mb-2" onclick='deleteJob("${job._id}")'>Delete</button>
-</div></div>`;
-});
-html+='</div><button class="btn btn-warning mt-3" onclick="postJobForm()">Post New Job</button>';
-document.getElementById("recruiterContent").innerHTML=html;
-}
+      // wire buttons for these job cards
+      target.querySelectorAll('button[data-action]').forEach(btn=>{
+        const action = btn.getAttribute('data-action');
+        const jobId = btn.getAttribute('data-jobid');
+        if (action === 'apply') btn.addEventListener('click', ()=> applyJob(jobId));
+        if (action === 'save') btn.addEventListener('click', ()=> saveJob(jobId));
+      });
+    } catch(err){ showError(err.message); }
+  }
 
-// Post job form
-function postJobForm(){
-document.getElementById("recruiterContent").innerHTML=`
-<h3>Post New Job</h3>
-<input class="form-control mb-2" id="jobTitle" placeholder="Job Title">
-<input class="form-control mb-2" id="jobSkills" placeholder="Required Skills">
-<input type="number" class="form-control mb-2" id="jobVacancy" placeholder="Vacancy">
-<input type="date" class="form-control mb-2" id="jobStart" placeholder="Start Date">
-<input type="date" class="form-control mb-2" id="jobEnd" placeholder="End Date">
-<button class="btn btn-success mb-2" onclick="postJob()">Submit</button>
-<button class="btn btn-secondary back-btn" onclick="loadRecruiterDashboard()">Back</button>
-`;
-}
+  async function applyJob(jobId){
+    try {
+      if (!currentUser || !currentUser._id) { alert("Please login as candidate"); showSection("loginSection"); return; }
+      const payload = { candidateId: currentUser._id, jobId };
+      const data = await safeFetch(`${API}/apply`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+      if (data) { alert(data.message || "Applied"); loadCandidateDashboard(); }
+    } catch(err){ showError(err.message); }
+  }
 
-// Post job API
-async function postJob(){
-let payload={recruiterId:currentUser._id,title:document.getElementById("jobTitle").value,skills:document.getElementById("jobSkills").value,vacancy:document.getElementById("jobVacancy").value,start:document.getElementById("jobStart").value,end:document.getElementById("jobEnd").value};
-let res=await fetch(API+"/post_job",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-let data=await res.json(); alert(data.message); loadRecruiterDashboard();
-}
+  async function saveJob(jobId){
+    try {
+      if (!currentUser || !currentUser._id) { alert("Please login"); showSection("loginSection"); return; }
+      const payload = { candidateId: currentUser._id, jobId };
+      const data = await safeFetch(`${API}/save_job`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+      if (data) { alert(data.message || "Saved"); loadCandidateDashboard(); }
+    } catch(err){ showError(err.message); }
+  }
 
-// View applicants
-async function viewApplicants(jobId){
-let res=await fetch(API+"/applicants/"+jobId);
-let apps=await res.json();
-let html='<h3>Applicants</h3>';
-apps.forEach(app=>{
-html+=`<div class="card p-2 mb-2">
-<h5>${app.name}</h5>
-<p>Email: ${app.email}</p>
-<p>Skills: ${app.skills}</p>
-<button class="btn btn-success mb-1" onclick='shortlist("${jobId}","${app._id}")'>Shortlist</button>
-<button class="btn btn-danger mb-1" onclick='reject("${jobId}","${app._id}")'>Reject</button>
-<button class="btn btn-info mb-1" onclick='messageCandidate("${app._id}")'>Message</button>
-</div>`;
-});
-html+='<button class="btn btn-secondary back-btn" onclick="loadRecruiterDashboard()">Back</button>';
-document.getElementById("recruiterContent").innerHTML=html;
-}
+  // ---------------- Recruiter functionality ----------------
+  async function loadRecruiterDashboard(){
+    try {
+      showSection("recruiterDashboard");
+      const target = el("recruiterContent");
+      if (!target) return;
+      target.innerHTML = `<p>Loading your posted jobs...</p>`;
+      if (!currentUser || !currentUser._id) { showError("No recruiter found in storage"); return; }
+      const res = await safeFetch(`${API}/recruiter_jobs/${encodeURIComponent(currentUser._id)}`);
+      if (!res) { target.innerHTML = `<p>Unable to load jobs.</p>`; return; }
+      let html = `<h3>Your Posted Jobs</h3><div class="row">`;
+      for (const job of res){
+        html += `<div class="col-md-4"><div class="card p-3">
+          <h5>${escapeHtml(job.title || job.jobTitle)}</h5>
+          <p>Vacancy: ${escapeHtml(job.vacancy || job.vacancies || "")}</p>
+          <p>Posted: ${escapeHtml(job.posted ? (new Date(job.posted)).toLocaleDateString() : "")}</p>
+          <p>Status: ${escapeHtml(job.status || "")}</p>
+          <div>
+            <button class="btn btn-success mb-2" data-jobid="${escapeHtml(job._id || job.id)}" data-action="viewApplicants">View Applicants</button>
+            <button class="btn btn-primary mb-2" data-jobid="${escapeHtml(job._id || job.id)}" data-action="editJob">Edit</button>
+            <button class="btn btn-danger mb-2" data-jobid="${escapeHtml(job._id || job.id)}" data-action="deleteJob">Delete</button>
+          </div>
+        </div></div>`;
+      }
+      html += `</div><button class="btn btn-warning mt-3" id="btnNewPost">Post New Job</button>`;
+      target.innerHTML = html;
 
-async function shortlist(jobId,candidateId){
-let res=await fetch(API+"/shortlist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId,candidateId})});
-let data=await res.json(); alert(data.message); viewApplicants(jobId);
-}
-async function reject(jobId,candidateId){
-let res=await fetch(API+"/reject",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId,candidateId})});
-let data=await res.json(); alert(data.message); viewApplicants(jobId);
-}
+      // wire post new
+      el("btnNewPost")?.addEventListener("click", postJobForm);
+      // wire job card buttons
+      target.querySelectorAll('button[data-action]').forEach(btn=>{
+        const action = btn.getAttribute('data-action');
+        const jobId = btn.getAttribute('data-jobid');
+        if (action === 'viewApplicants') btn.addEventListener('click', ()=> viewApplicants(jobId));
+        if (action === 'editJob') btn.addEventListener('click', ()=> editJob(jobId));
+        if (action === 'deleteJob') btn.addEventListener('click', ()=> deleteJob(jobId));
+      });
+    } catch(err){ showError(err.message); }
+  }
 
-// ========= ADMIN LOGIC =========
-async function loadAdminDashboard(){
-showSection("adminDashboard");
-document.getElementById("adminContent").innerHTML='<p>Loading stats...</p>';
-let statsRes=await fetch(API+"/admin_stats");
-let stats=await statsRes.json();
+  function postJobForm(){
+    const target = el("recruiterContent");
+    if (!target) return;
+    target.innerHTML = `
+      <h3>Post New Job</h3>
+      <input class="form-control mb-2" id="jobTitle" placeholder="Job Title">
+      <input class="form-control mb-2" id="jobCompany" placeholder="Company (optional)">
+      <input class="form-control mb-2" id="jobSkills" placeholder="Required Skills (comma) ">
+      <input type="number" class="form-control mb-2" id="jobVacancy" placeholder="Vacancy">
+      <input type="date" class="form-control mb-2" id="jobStart" placeholder="Start Date">
+      <input type="date" class="form-control mb-2" id="jobEnd" placeholder="End Date">
+      <button class="btn btn-success mb-2" id="btnPostJobSubmit">Submit</button>
+      <button class="btn btn-secondary back-btn" id="btnPostJobBack">Back</button>
+    `;
+    el("btnPostJobSubmit")?.addEventListener("click", postJob);
+    el("btnPostJobBack")?.addEventListener("click", loadRecruiterDashboard);
+  }
 
-let html=`<div class="row">
-<div class="col-md-3"><div class="card p-3 bg-primary text-white">Candidates: ${stats.candidates}</div></div>
-<div class="col-md-3"><div class="card p-3 bg-warning text-dark">Recruiters: ${stats.recruiters}</div></div>
-<div class="col-md-3"><div class="card p-3 bg-success text-white">Jobs: ${stats.jobs}</div></div>
-<div class="col-md-3"><div class="card p-3 bg-danger text-white">Reports: ${stats.reports}</div></div>
-</div>`;
-document.getElementById("adminContent").innerHTML=html+'<canvas id="adminChart" height="100"></canvas>';
-let ctx=document.getElementById('adminChart').getContext('2d');
-new Chart(ctx,{type:'bar',data:{labels:['Candidates','Recruiters','Jobs','Reports'],datasets:[{label:'Count',data:[stats.candidates,stats.recruiters,stats.jobs,stats.reports],backgroundColor:['blue','orange','green','red']}]},options:{responsive:true}});
-}
+  async function postJob(){
+    try {
+      if (!currentUser || !currentUser._id) { alert("Please login as recruiter"); showSection("loginSection"); return; }
+      const payload = {
+        recruiterId: currentUser._id,
+        title: el("jobTitle")?.value || "",
+        company: el("jobCompany")?.value || (currentUser.company || ""),
+        skills: el("jobSkills")?.value || "",
+        vacancy: el("jobVacancy")?.value || "",
+        start: el("jobStart")?.value || "",
+        end: el("jobEnd")?.value || ""
+      };
+      const data = await safeFetch(`${API}/post_job`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+      if (data) { alert(data.message || "Job posted"); loadRecruiterDashboard(); }
+    } catch(err){ showError(err.message); }
+  }
 
+  async function viewApplicants(jobId){
+    try {
+      const res = await safeFetch(`${API}/applicants/${encodeURIComponent(jobId)}`);
+      if (!res) { el("recruiterContent").innerHTML = `<p>No applicants or failed to load.</p>`; return; }
+      let html = `<h3>Applicants</h3>`;
+      for (const item of res){
+        // backend returns { candidate: { ... }, status: '...' }
+        const cand = item.candidate || item;
+        html += `<div class="card p-2 mb-2">
+          <h5>${escapeHtml(cand.name || cand.email || 'Candidate')}</h5>
+          <p>Email: ${escapeHtml(cand.email || '')}</p>
+          <p>Skills: ${escapeHtml(cand.skills || cand.skills)}</p>
+          <button class="btn btn-success mb-1" data-cid="${escapeHtml(cand._id)}" data-job="${escapeHtml(jobId)}" data-action="shortlist">Shortlist</button>
+          <button class="btn btn-danger mb-1" data-cid="${escapeHtml(cand._id)}" data-job="${escapeHtml(jobId)}" data-action="reject">Reject</button>
+        </div>`;
+      }
+      html += `<button class="btn btn-secondary back-btn" id="backToPosted">Back</button>`;
+      el("recruiterContent").innerHTML = html;
+      // wire actions
+      el("recruiterContent").querySelectorAll('button[data-action]').forEach(btn=>{
+        const act = btn.getAttribute('data-action');
+        const cid = btn.getAttribute('data-cid');
+        const jid = btn.getAttribute('data-job');
+        if (act === 'shortlist') btn.addEventListener('click', ()=> shortlist(jid, cid));
+        if (act === 'reject') btn.addEventListener('click', ()=> reject(jid, cid));
+      });
+      el("backToPosted")?.addEventListener('click', loadRecruiterDashboard);
+    } catch(err){ showError(err.message); }
+  }
 
-// === Candidate, Recruiter, Admin functional logic will go here: job search, apply, post job, applicants, messages, reports, analytics ===
+  async function shortlist(jobId, candidateId){
+    const payload = { jobId, candidateId };
+    const data = await safeFetch(`${API}/shortlist`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+    if (data) { alert(data.message || "Shortlisted"); viewApplicants(jobId); }
+  }
 
-// Due to message length limits, I will provide the full JS logic in the next message, fully connected to Render backend.
+  async function reject(jobId, candidateId){
+    const payload = { jobId, candidateId };
+    const data = await safeFetch(`${API}/reject`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+    if (data) { alert(data.message || "Rejected"); viewApplicants(jobId); }
+  }
+
+  async function editJob(jobId){
+    // minimal: let recruiter fetch job, then prefill fields in a form — quick implementation:
+    const job = (await safeFetch(`${API}/recruiter_jobs/${encodeURIComponent(currentUser._id)}`))?.find(j => (j._id||j.id) === jobId);
+    if (!job) { showError("Job not found for edit"); return; }
+    const target = el("recruiterContent");
+    target.innerHTML = `
+      <h3>Edit Job</h3>
+      <input class="form-control mb-2" id="jobTitle" value="${escapeHtml(job.title || '')}" placeholder="Job Title">
+      <input class="form-control mb-2" id="jobSkills" value="${escapeHtml(job.skills || '')}" placeholder="Required Skills">
+      <input type="number" class="form-control mb-2" id="jobVacancy" value="${escapeHtml(job.vacancy||job.vacancies||'')}" placeholder="Vacancy">
+      <input type="date" class="form-control mb-2" id="jobStart" value="${job.start||''}">
+      <input type="date" class="form-control mb-2" id="jobEnd" value="${job.end||''}">
+      <button class="btn btn-success mb-2" id="saveEditBtn">Save</button>
+      <button class="btn btn-secondary back-btn" id="cancelEditBtn">Cancel</button>
+    `;
+    el("saveEditBtn")?.addEventListener("click", async ()=>{
+      const payload = {
+        jobId,
+        title: el("jobTitle")?.value,
+        skills: el("jobSkills")?.value,
+        vacancy: el("jobVacancy")?.value,
+        start: el("jobStart")?.value,
+        end: el("jobEnd")?.value
+      };
+      // there's no edit endpoint in your backend by default; we do a delete+post or update if you add /edit_job.
+      // We'll try to call /edit_job if present; otherwise we alert and return.
+      const editRes = await safeFetch(`${API}/edit_job`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+      if (editRes) { alert(editRes.message || "Updated"); loadRecruiterDashboard(); } else {
+        alert("Edit endpoint not available on backend. Consider adding /edit_job to update job in backend.");
+      }
+    });
+    el("cancelEditBtn")?.addEventListener("click", loadRecruiterDashboard);
+  }
+
+  async function deleteJob(jobId){
+    if (!confirm("Delete this job?")) return;
+    const data = await safeFetch(`${API}/delete_job`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ jobId }) });
+    if (data) { alert(data.message || "Deleted"); loadRecruiterDashboard(); }
+  }
+
+  // ---------------- Admin functionality ----------------
+  async function loadAdminDashboard(){
+    try {
+      showSection("adminDashboard");
+      const target = el("adminContent");
+      if (!target) return;
+      target.innerHTML = `<p>Loading stats...</p>`;
+      const stats = await safeFetch(`${API}/admin_stats`);
+      if (!stats) { target.innerHTML = `<p>Unable to load admin stats</p>`; return; }
+      const html = `<div class="row">
+        <div class="col-md-3"><div class="card p-3 bg-primary text-white">Candidates: ${stats.candidates}</div></div>
+        <div class="col-md-3"><div class="card p-3 bg-warning text-dark">Recruiters: ${stats.recruiters}</div></div>
+        <div class="col-md-3"><div class="card p-3 bg-success text-white">Jobs: ${stats.jobs}</div></div>
+        <div class="col-md-3"><div class="card p-3 bg-danger text-white">Reports: ${stats.reports}</div></div>
+      </div>
+      <div class="mt-3"><button class="btn btn-warning" id="adminLoadReports">Load Reports</button></div>
+      <canvas id="adminChart" height="100" class="mt-3"></canvas>`;
+      target.innerHTML = html;
+      const ctx = document.getElementById('adminChart')?.getContext('2d');
+      if (ctx){
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Candidates','Recruiters','Jobs','Reports'],
+            datasets: [{ label: 'Count', data: [stats.candidates, stats.recruiters, stats.jobs, stats.reports], backgroundColor: ['blue','orange','green','red'] }]
+          }
+        });
+      }
+      el("adminLoadReports")?.addEventListener("click", async ()=>{
+        const reps = await safeFetch(`${API}/reports`);
+        if (!reps) { alert("Failed to load reports"); return; }
+        let h = `<h4>Reports</h4>`;
+        h += reps.map(r => `<div class="card p-2 mb-2"><p>${escapeHtml(JSON.stringify(r))}</p>
+             <button class="btn btn-danger report-ban" data-rid="${escapeHtml(r.recruiterId || '')}">Ban Recruiter</button>
+             </div>`).join("");
+        h += `<button class="btn btn-secondary back-btn" id="adminBackBtn">Back</button>`;
+        target.innerHTML = h;
+        target.querySelectorAll(".report-ban")?.forEach(btn => {
+          btn.addEventListener("click", async ()=> {
+            const rid = btn.getAttribute("data-rid");
+            if (!rid) { alert("No recruiter id in report"); return; }
+            const res = await safeFetch(`${API}/ban_recruiter`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ recruiterId: rid }) });
+            alert(res?.message || "Banned");
+            loadAdminDashboard();
+          });
+        });
+        el("adminBackBtn")?.addEventListener("click", loadAdminDashboard);
+      });
+    } catch(err){ showError(err.message); }
+  }
+
+  // ---------------- Messaging (simple) ----------------
+  async function sendMessage(toId, text){
+    if (!currentUser || !currentUser._id) { alert("Login required"); return; }
+    const payload = { fromId: currentUser._id, toId, text };
+    const res = await safeFetch(`${API}/message`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+    if (res) alert(res.message || "Message sent");
+  }
+  async function loadMessagesForUser(uid){
+    const data = await safeFetch(`${API}/get_messages/${encodeURIComponent(uid)}`);
+    return data || [];
+  }
+
+  // small HTML escape helper
+  function escapeHtml(s){
+    if (s === undefined || s === null) return "";
+    return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
+  }
+
+  // On load: if logged-in user in storage, go to appropriate dashboard
+  (function initFromStorage(){
+    const stored = loadUserFromStorage();
+    if (stored && currentRole){
+      if (currentRole === "candidate") loadCandidateDashboard();
+      else if (currentRole === "recruiter") loadRecruiterDashboard();
+      else if (currentRole === "admin") loadAdminDashboard();
+    } else {
+      showSection("landingSection");
+    }
+  })();
+
+  // expose some functions for inline onclick calls (if used)
+  window.showSection = showSection;
+  window.loadCandidateDashboard = loadCandidateDashboard;
+  window.loadRecruiterDashboard = loadRecruiterDashboard;
+  window.loadAdminDashboard = loadAdminDashboard;
+  window.applyJob = applyJob;
+  window.saveJob = saveJob;
+  window.postJobForm = postJobForm;
+  window.viewApplicants = viewApplicants;
+  window.shortlist = shortlist;
+  window.reject = reject;
+  window.sendMessage = sendMessage;
+})();
 </script>
+
 </body>
 </html>
