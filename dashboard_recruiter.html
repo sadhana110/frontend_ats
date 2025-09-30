@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recruiter Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h2>Recruiter Dashboard</h2>
+    <nav>
+      <a href="#" onclick="showPostJob()">Post Job</a>
+      <a href="#" onclick="showPostedJobs()">Posted Jobs</a>
+      <a href="#" onclick="showMessages()">Messages</a>
+      <a href="index.html">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="postJobForm" style="display:none;">
+      <h3>Post a Job</h3>
+      <form id="postJob">
+        <input type="text" id="jobTitle" placeholder="Job Title" required>
+        <textarea id="jobDesc" placeholder="Job Description"></textarea>
+        <input type="text" id="skillsRequired" placeholder="Skills Required">
+        <input type="number" id="vacancy" placeholder="No. of Vacancies">
+        <input type="date" id="startDate">
+        <input type="date" id="endDate">
+        <button type="submit">Post Job</button>
+      </form>
+    </section>
+
+    <section id="postedJobs"></section>
+    <section id="messages"></section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
