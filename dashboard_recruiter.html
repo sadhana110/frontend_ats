@@ -29,6 +29,19 @@
         <button type="submit">Post Job</button>
       </form>
     </section>
+    <form id="postJobForm">
+    <input type="text" id="jobTitle" placeholder="Job Title" required>
+    <input type="text" id="companyName" placeholder="Company Name" required>
+    <input type="date" id="startDate" required>
+    <input type="date" id="endDate" required>
+    <input type="number" id="vacancies" placeholder="Vacancies" required>
+    <textarea id="description" placeholder="Job Description"></textarea>
+    <button type="submit">Post Job</button>
+</form>
+
+<h2>Jobs Posted</h2>
+<div id="jobList"></div>
+
 
     <section id="postedJobs"></section>
     <section id="messages"></section>
