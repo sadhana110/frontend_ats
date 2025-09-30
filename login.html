@@ -1,17 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
+  <meta charset="UTF-8">
+  <title>Login - Job Portal</title>
   <link rel="stylesheet" href="style.css">
-  <script src="main.js" defer></script>
 </head>
 <body>
   <h2>Login</h2>
   <form id="loginForm">
-    <input type="email" id="email" placeholder="Email" required><br>
-    <input type="password" id="password" placeholder="Password" required><br>
+    <label>Email</label>
+    <input type="email" id="email" required>
+    <label>Password</label>
+    <input type="password" id="password" required>
+    <label>Role</label>
+    <select id="role">
+      <option value="candidate">Candidate</option>
+      <option value="recruiter">Recruiter</option>
+      <option value="admin">Admin</option>
+    </select>
     <button type="submit">Login</button>
   </form>
-  <p>Don't have an account? <a href="register.html">Register</a></p>
+  <p>New user? <a href="register_candidate.html">Register as Candidate</a> or <a href="register_recruiter.html">Register as Recruiter</a></p>
+  <script src="script.js"></script>
 </body>
 </html>
