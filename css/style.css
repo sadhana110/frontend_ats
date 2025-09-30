@@ -1,7 +1,9 @@
-body { font-family: 'Roboto', sans-serif; background-color:#f5f5f5; }
-.hero h1 { font-size:2rem; color:#333; }
-.job-card { background:#fff; padding:15px 20px; border-radius:6px; margin-bottom:15px; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:0.2s; }
-.job-card:hover { transform:translateY(-3px); box-shadow:0 5px 15px rgba(0,0,0,0.15); }
-.job-card h5 { font-weight:600; color:#222; }
-.job-card p { margin:3px 0; }
-.btn-warning { background-color:#ff6600; border-color:#ff6600; }
+body { font-family: Arial; padding: 20px; margin:0; }
+nav { display:flex; justify-content:space-between; background:#0073e6; color:white; padding:10px; }
+nav button, nav a { margin:0 5px; padding:5px 10px; background:white; color:#0073e6; border:none; cursor:pointer; }
+nav button:hover, nav a:hover { background:#005bb5; color:white; }
+input, select, button { padding:8px; margin:5px; }
+button { background:#0073e6; color:white; border:none; cursor:pointer; }
+button:hover { background:#005bb5; }
+section { margin-top:20px; }
+#jobList div, #postedJobs div { border:1px solid #ccc; padding:10px; margin:5px 0; }
