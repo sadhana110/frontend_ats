@@ -1,379 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Naukri Clone Full SPA</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body { font-family: Arial, sans-serif; background:#f4f6f9; }
-header { background: #0d6efd; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;}
-header h1 { margin:0; }
-nav a { color:white; margin-left:15px; text-decoration:none; font-weight:bold; }
-section { padding:20px; }
-.card { margin-bottom:15px; }
-.progress { height:20px; }
-.hidden { display:none; }
-.red-dot { height:10px; width:10px; border-radius:50%; background:red; display:inline-block; }
-button.back-btn { margin-top:10px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Naukri Clone</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .hidden { display: none; }
+    body { padding-top: 70px; }
+  </style>
 </head>
 <body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">JobPortal</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a id="navHome" class="nav-link" href="#">Home</a></li>
+          <li class="nav-item"><a id="navLogin" class="nav-link" href="#">Login</a></li>
+          <li class="nav-item"><a id="navCandidateRegister" class="nav-link" href="#">Candidate Register</a></li>
+          <li class="nav-item"><a id="navRecruiterRegister" class="nav-link" href="#">Recruiter Register</a></li>
+          <li class="nav-item"><a id="navLogout" class="nav-link hidden" href="#">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-<header>
-<h1>Naukri Clone</h1>
-<nav>
-<a href="#" id="navLanding">Home</a>
-<a href="#" id="navLogin">Login</a>
-<a href="#" id="navCandidateRegister">Register Candidate</a>
-<a href="#" id="navRecruiterRegister">Register Recruiter</a>
-<a href="#" id="navLogout" class="hidden">Logout</a>
-</nav>
-</header>
+  <!-- Sections -->
+  <div class="container">
+    <!-- Landing -->
+    <div id="landingSection" class="mt-5">
+      <h2 class="text-center">Welcome to Job Portal</h2>
+      <p class="text-center">Find jobs or hire the best candidates!</p>
+    </div>
 
-<!-- Landing Page -->
-<section id="landingSection">
-<div class="text-center my-5">
-<h2>Find Your Dream Job</h2>
-<p>Search thousands of jobs, apply easily, and get noticed by recruiters!</p>
-<button class="btn btn-primary me-2" id="btnLogin">Login</button>
-<button class="btn btn-success me-2" id="btnCandidateRegister">Register as Candidate</button>
-<button class="btn btn-warning" id="btnRecruiterRegister">Register as Recruiter</button>
-</div>
-</section>
+    <!-- Login -->
+    <div id="loginSection" class="hidden mt-5">
+      <h3>Login</h3>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" class="form-control mb-2" placeholder="Email" required>
+        <input type="password" id="loginPassword" class="form-control mb-2" placeholder="Password" required>
+        <select id="loginRole" class="form-control mb-2">
+          <option value="candidate">Candidate</option>
+          <option value="recruiter">Recruiter</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+    </div>
 
-<!-- Login Section -->
-<section id="loginSection" class="hidden">
-<h2>Login</h2>
-<form id="loginForm">
-<div class="mb-3"><label>Email</label><input type="email" id="loginEmail" class="form-control" required></div>
-<div class="mb-3"><label>Password</label><input type="password" id="loginPassword" class="form-control" required></div>
-<div class="mb-3"><label>Role</label>
-<select id="loginRole" class="form-select">
-<option value="candidate">Candidate</option>
-<option value="recruiter">Recruiter</option>
-<option value="admin">Admin</option>
-</select>
-</div>
-<button type="submit" class="btn btn-primary">Login</button>
-<button type="button" class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-<p class="mt-2">New user? 
-<a href="#" id="linkCandidateRegister">Register as Candidate</a> | 
-<a href="#" id="linkRecruiterRegister">Register as Recruiter</a>
-</p>
-</form>
-</section>
+    <!-- Candidate Register -->
+    <div id="candidateRegisterSection" class="hidden mt-5">
+      <h3>Candidate Register</h3>
+      <form id="candidateForm">
+        <input type="text" id="c_name" class="form-control mb-2" placeholder="Name">
+        <input type="email" id="c_email" class="form-control mb-2" placeholder="Email">
+        <input type="password" id="c_password" class="form-control mb-2" placeholder="Password">
+        <button class="btn btn-success" type="submit">Register</button>
+      </form>
+    </div>
 
-<!-- Candidate Registration -->
-<section id="candidateRegisterSection" class="hidden">
-<h2>Candidate Registration</h2>
-<div class="progress mb-3">
-<div id="candidateProgress" class="progress-bar bg-success" style="width:33%">Step 1</div>
-</div>
-<div id="candidateStep1">
-<h4>Personal Details</h4>
-<input type="text" id="c_name" placeholder="Full Name" class="form-control mb-2">
-<input type="email" id="c_email" placeholder="Email" class="form-control mb-2">
-<input type="password" id="c_password" placeholder="Password" class="form-control mb-2">
-<input type="text" id="c_phone" placeholder="Phone Number" class="form-control mb-2">
-<input type="date" id="c_dob" class="form-control mb-2">
-<button class="btn btn-primary" id="cNext1">Next</button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-<div id="candidateStep2" class="hidden">
-<h4>Education & Skills</h4>
-<textarea id="c_education" placeholder="10th, 12th, UG, PG, Certifications" class="form-control mb-2"></textarea>
-<input type="text" id="c_skills" placeholder="Skills (comma separated)" class="form-control mb-2">
-<button class="btn btn-secondary" id="cBack2">Back</button>
-<button class="btn btn-primary" id="cNext2">Next</button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-<div id="candidateStep3" class="hidden">
-<h4>Experience & Resume</h4>
-<textarea id="c_experience" placeholder="Experience or Fresher" class="form-control mb-2"></textarea>
-<input type="file" id="c_resume" class="form-control mb-2">
-<button class="btn btn-secondary" id="cBack3">Back</button>
-<button class="btn btn-success" id="cSubmit">Submit</button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-</section>
+    <!-- Recruiter Register -->
+    <div id="recruiterRegisterSection" class="hidden mt-5">
+      <h3>Recruiter Register</h3>
+      <form id="recruiterForm">
+        <input type="text" id="r_name" class="form-control mb-2" placeholder="Name">
+        <input type="email" id="r_email" class="form-control mb-2" placeholder="Email">
+        <input type="password" id="r_password" class="form-control mb-2" placeholder="Password">
+        <button class="btn btn-success" type="submit">Register</button>
+      </form>
+    </div>
 
-<!-- Recruiter Registration -->
-<section id="recruiterRegisterSection" class="hidden">
-<h2>Recruiter Registration</h2>
-<div class="progress mb-3">
-<div id="recruiterProgress" class="progress-bar bg-warning" style="width:33%">Step 1</div>
-</div>
-<div id="recruiterStep1">
-<h4>Personal Details</h4>
-<input type="text" id="r_name" placeholder="Full Name" class="form-control mb-2">
-<input type="email" id="r_email" placeholder="Email" class="form-control mb-2">
-<input type="password" id="r_password" placeholder="Password" class="form-control mb-2">
-<input type="text" id="r_phone" placeholder="Phone Number" class="form-control mb-2">
-<button class="btn btn-primary" id="rNext1">Next</button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-<div id="recruiterStep2" class="hidden">
-<h4>Company Details</h4>
-<input type="text" id="r_company" placeholder="Company Name" class="form-control mb-2">
-<input type="text" id="r_industry" placeholder="Industry" class="form-control mb-2">
-<input type="text" id="r_designation" placeholder="Designation" class="form-control mb-2">
-<button class="btn btn-secondary" id="rBack2">Back</button>
-<button class="btn btn-primary" id="rNext2">Next</button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-<div id="recruiterStep3" class="hidden">
-<h4>Experience</h4>
-<input type="text" id="r_experience" placeholder="Years of Experience" class="form-control mb-2">
-<button class="btn btn-secondary" id="rBack3">Back</button>
-<button class="btn btn-success" id="rSubmit">Submit</button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
+    <!-- Candidate Dashboard -->
+    <div id="candidateDashboard" class="hidden mt-5">
+      <h3>Candidate Dashboard</h3>
+      <p>Welcome, <span id="candidateName"></span>!</p>
+      <div id="jobList"></div>
+    </div>
 
-<!-- Candidate Dashboard -->
-<section id="candidateDashboard" class="hidden">
-<h2>Candidate Dashboard</h2>
-<div class="mb-3">
-<button class="btn btn-secondary me-2" id="cProfileBtn">Profile</button>
-<button class="btn btn-primary me-2" id="cJobsBtn">Job Search</button>
-<button class="btn btn-warning me-2" id="cAppliedBtn">Applied Jobs</button>
-<button class="btn btn-success me-2" id="cSavedBtn">Saved Jobs</button>
-<button class="btn btn-info" id="cMessageBtn">Messages <span id="cMessageDot" class="red-dot hidden"></span></button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-<div id="candidateContent"></div>
-</section>
+    <!-- Recruiter Dashboard -->
+    <div id="recruiterDashboard" class="hidden mt-5">
+      <h3>Recruiter Dashboard</h3>
+      <p>Welcome, <span id="recruiterName"></span>!</p>
+      <form id="jobPostForm" class="mb-3">
+        <input type="text" id="jobTitle" class="form-control mb-2" placeholder="Job Title" required>
+        <input type="text" id="jobDesc" class="form-control mb-2" placeholder="Description" required>
+        <button class="btn btn-primary">Post Job</button>
+      </form>
+      <div id="recruiterJobs"></div>
+    </div>
 
-<!-- Recruiter Dashboard -->
-<section id="recruiterDashboard" class="hidden">
-<h2>Recruiter Dashboard</h2>
-<div class="mb-3">
-<button class="btn btn-secondary me-2" id="rPostJobBtn">Post Job</button>
-<button class="btn btn-primary me-2" id="rPostedJobsBtn">Posted Jobs</button>
-<button class="btn btn-warning me-2" id="rApplicantsBtn">Applicants</button>
-<button class="btn btn-info" id="rMessageBtn">Messages <span id="rMessageDot" class="red-dot hidden"></span></button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-<div id="recruiterContent"></div>
-</section>
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden mt-5">
+      <h3>Admin Dashboard</h3>
+      <div id="adminContent"></div>
+    </div>
+  </div>
 
-<!-- Admin Dashboard -->
-<section id="adminDashboard" class="hidden">
-<h2>Admin Dashboard</h2>
-<div class="mb-3">
-<button class="btn btn-primary me-2" id="adminStatsBtn">Stats</button>
-<button class="btn btn-warning me-2" id="adminReportsBtn">Reports</button>
-<button class="btn btn-info me-2" id="adminMessageBtn">Messages</button>
-<button class="btn btn-secondary back-btn" onclick="showSection('landingSection')">Back to Home</button>
-</div>
-<div id="adminContent"></div>
-</section>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-(function(){
-  const API = "https://backend-ats-z0tb.onrender.com";
-
-  // --- Error box ---
-  const errBox = document.createElement("div");
-  errBox.id = "jsErrorBox";
-  errBox.style.position = "fixed";
-  errBox.style.left = "10px";
-  errBox.style.right = "10px";
-  errBox.style.bottom = "10px";
-  errBox.style.background = "#fff3f3";
-  errBox.style.border = "1px solid #ff6b6b";
-  errBox.style.color = "#800";
-  errBox.style.padding = "10px";
-  errBox.style.zIndex = "99999";
-  errBox.style.display = "none";
-  document.body.appendChild(errBox);
-  function showError(msg){
-    console.error(msg);
-    errBox.textContent = "ERROR: " + msg;
-    errBox.style.display = "block";
-  }
-  window.onerror = function(message, source, lineno, colno, error){
-    showError(`${message} at ${source}:${lineno}:${colno}`);
-  };
-
-  async function safeFetch(url, opts = {}){
-    try {
-      const res = await fetch(url, opts);
-      if (!res.ok) {
-        let text; try { text = await res.text(); } catch(e){ text = res.statusText; }
-        throw new Error(`HTTP ${res.status}: ${text}`);
-      }
-      const type = res.headers.get("content-type") || "";
-      if (type.includes("application/json")) return await res.json();
-      try { return JSON.parse(await res.text()); } catch(e){ return null; }
-    } catch (err) {
-      showError(`Network error calling ${url} — ${err.message}`);
-      return null;
-    }
-  }
-
-  function el(id){ return document.getElementById(id) || null; }
-  function onClick(id, fn){ const e = el(id); if (e) e.addEventListener('click', fn); }
-
-  const sections = ["landingSection","loginSection","candidateRegisterSection","recruiterRegisterSection","candidateDashboard","recruiterDashboard","adminDashboard"];
-  function showSection(id){
-    sections.forEach(s => el(s)?.classList.add("hidden"));
-    el(id)?.classList.remove("hidden");
-    window.scrollTo(0,0);
-  }
-
-  // --- current user ---
-  let currentUser = null;
-  let currentRole = null;
-  function normalizeUser(u){
-    if (!u) return null;
-    // normalize recruiter/candidate id
-    u._id = u._id || u.id || u.recruiterId || u.candidateId;
-    return u;
-  }
-  function saveUser(user, role){
-    currentUser = normalizeUser(user);
-    currentRole = role;
-    localStorage.setItem("spa_user", JSON.stringify(currentUser || null));
-    localStorage.setItem("spa_role", role || "");
-    if (el("navLogout")) {
-      if (user) el("navLogout").classList.remove("hidden");
-      else el("navLogout").classList.add("hidden");
-    }
-  }
-  function loadUserFromStorage(){
-    try {
-      const u = JSON.parse(localStorage.getItem("spa_user") || "null");
-      const r = localStorage.getItem("spa_role") || null;
-      currentUser = normalizeUser(u);
-      currentRole = r;
-      if (u) el("navLogout")?.classList.remove("hidden");
-      return u;
-    } catch(e){ return null; }
-  }
-  loadUserFromStorage();
-
-  // --- nav ---
-  onClick("navLanding", ()=> showSection("landingSection"));
-  onClick("navLogin", ()=> showSection("loginSection"));
-  onClick("navCandidateRegister", ()=> showSection("candidateRegisterSection"));
-  onClick("navRecruiterRegister", ()=> showSection("recruiterRegisterSection"));
-  onClick("navLogout", ()=> { saveUser(null,null); showSection("landingSection"); });
-
-  // --- login ---
-  const loginForm = el("loginForm");
-  if (loginForm) loginForm.addEventListener("submit", async (ev)=>{
-    ev.preventDefault();
-    const email = el("loginEmail")?.value || "";
-    const password = el("loginPassword")?.value || "";
-    const role = el("loginRole")?.value || "candidate";
-    const data = await safeFetch(`${API}/login`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ email, password, role }) });
-    if (!data) return;
-    if (data.success && data.user) {
-      saveUser(data.user, role);
-      alert("Login successful");
-      if (role === "candidate") loadCandidateDashboard();
-      else if (role === "recruiter") loadRecruiterDashboard();
-      else if (role === "admin") loadAdminDashboard();
-    } else {
-      alert(data.message || "Invalid credentials");
-    }
-  });
-
-  // --- candidate dashboard ---
-  async function loadCandidateDashboard(){
-    showSection("candidateDashboard");
-    const target = el("candidateContent");
-    if (!target) return;
-    target.innerHTML = `<p>Loading jobs...</p>`;
-    const jobs = await safeFetch(`${API}/jobs`);
-    if (!jobs){ target.innerHTML = `<p>Unable to load jobs.</p>`; return; }
-    let html = `<h3>Available Jobs</h3><div class="row">`;
-    for (const job of jobs){
-      html += `<div class="col-md-4"><div class="card p-3">
-        <h5>${escapeHtml(job.title||"Untitled")}</h5>
-        <p><strong>${escapeHtml(job.company||"Company")}</strong></p>
-        <button class="btn btn-primary mb-2" onclick="applyJob('${job._id||job.id}')">Apply</button>
-      </div></div>`;
-    }
-    html += `</div>`;
-    target.innerHTML = html;
-  }
-
-  // --- recruiter dashboard ---
-  async function loadRecruiterDashboard(){
-    showSection("recruiterDashboard");
-    const target = el("recruiterContent");
-    if (!target) return;
-    if (!currentUser || !currentUser._id){ target.innerHTML = `<p>No recruiter id found.</p>`; return; }
-    target.innerHTML = `<p>Loading your jobs...</p>`;
-    const res = await safeFetch(`${API}/recruiter_jobs/${encodeURIComponent(currentUser._id)}`);
-    if (!res){ target.innerHTML = `<p>Unable to load jobs.</p>`; return; }
-    let html = `<h3>Your Posted Jobs</h3>`;
-    for (const job of res){
-      html += `<div class="card p-2 mb-2">
-        <h5>${escapeHtml(job.title||"")}</h5>
-        <p>Vacancy: ${escapeHtml(job.vacancy||"")}</p>
-      </div>`;
-    }
-    html += `<button class="btn btn-warning mt-3" id="btnNewPost">Post New Job</button>`;
-    target.innerHTML = html;
-    el("btnNewPost")?.addEventListener("click", postJobForm);
-  }
-
-  function postJobForm(){
-    const target = el("recruiterContent");
-    target.innerHTML = `
-      <h3>Post New Job</h3>
-      <input class="form-control mb-2" id="jobTitle" placeholder="Job Title">
-      <button class="btn btn-success mb-2" id="btnPostJobSubmit">Submit</button>
-      <button class="btn btn-secondary back-btn" id="btnPostJobBack">Back</button>
-    `;
-    el("btnPostJobSubmit")?.addEventListener("click", postJob);
-    el("btnPostJobBack")?.addEventListener("click", loadRecruiterDashboard);
-  }
-
-  async function postJob(){
-    if (!currentUser || !currentUser._id){ alert("Please login as recruiter"); return; }
-    const payload = {
-      recruiterId: currentUser._id,
-      title: el("jobTitle")?.value || ""
-    };
-    const data = await safeFetch(`${API}/post_job`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-    if (data){ alert(data.message || "Job posted"); loadRecruiterDashboard(); }
-  }
-
-  // --- admin dashboard (shortened) ---
-  async function loadAdminDashboard(){
-    showSection("adminDashboard");
-    const target = el("adminContent");
-    target.innerHTML = `<p>Loading...</p>`;
-    const stats = await safeFetch(`${API}/admin_stats`);
-    if (!stats){ target.innerHTML = `<p>Unable to load admin stats</p>`; return; }
-    target.innerHTML = `<pre>${escapeHtml(JSON.stringify(stats,null,2))}</pre>`;
-  }
-
-  function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-  // init
-  (function initFromStorage(){
-    const stored = loadUserFromStorage();
-    if (stored && currentRole){
-      if (currentRole === "candidate") loadCandidateDashboard();
-      else if (currentRole === "recruiter") loadRecruiterDashboard();
-      else if (currentRole === "admin") loadAdminDashboard();
-    } else {
-      showSection("landingSection");
-    }
-  })();
-
-  window.loadRecruiterDashboard = loadRecruiterDashboard;
-  window.loadCandidateDashboard = loadCandidateDashboard;
-})();
-</script>
-
+  <script src="spa.js"></script>
 </body>
 </html>
