@@ -5,31 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-<nav class="navbar">
-    <div class="logo" onclick="goHome()">JobPortal</div>
-    <ul class="nav-links"><li><a href="index.html">Logout</a></li></ul>
+
+<header>
+<h1>Admin Dashboard</h1>
+<nav>
+    <button onclick="showSection('stats')">Stats</button>
+    <button onclick="showSection('recruiters')">Recruiters</button>
+    <button onclick="showSection('candidates')">Candidates</button>
+    <button onclick="showSection('reports')">Reports</button>
+    <button onclick="showSection('messages')">Messages</button>
+    <button onclick="logout()">Logout</button>
 </nav>
+</header>
 
-<section>
-<h2>Admin Dashboard</h2>
-<div class="cards">
-    <div class="card" onclick="showRecruiters()">Recruiters</div>
-    <div class="card" onclick="showCandidates()">Candidates</div>
-    <div class="card" onclick="showReports()">Reports</div>
-    <div class="card" onclick="showMessages()">Messages</div>
-</div>
-<div id="content"></div>
-</section>
+<main>
+    <section id="stats" class="dashboard-section"></section>
+    <section id="recruiters" class="dashboard-section"></section>
+    <section id="candidates" class="dashboard-section"></section>
+    <section id="reports" class="dashboard-section"></section>
+    <section id="messages" class="dashboard-section"></section>
+</main>
 
-<script>
-function goHome(){ window.location.href='index.html'; }
-function showRecruiters(){ document.getElementById('content').innerHTML='<p>Recruiters list placeholder</p>'; }
-function showCandidates(){ document.getElementById('content').innerHTML='<p>Candidates list placeholder</p>'; }
-function showReports(){ document.getElementById('content').innerHTML='<p>Reports placeholder</p>'; }
-function showMessages(){ document.getElementById('content').innerHTML='<p>Messages placeholder</p>'; }
-</script>
+<script src="js/admin_dashboard.js"></script>
 </body>
 </html>
