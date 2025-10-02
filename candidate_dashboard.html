@@ -9,7 +9,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container">
-    <a class="navbar-brand" href="index.html">JobPortal</a>
+    <a class="navbar-brand" href="#">JobPortal</a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Logout</a></li>
@@ -20,18 +20,15 @@
 
 <div class="container mt-4">
     <h2>Welcome, <span id="candidateName"></span></h2>
-    <div class="row my-3">
-        <div class="col-md-12 text-center">
-            <button class="btn btn-success m-1" onclick="showTab('allJobs')">All Jobs</button>
-            <button class="btn btn-info m-1" onclick="showTab('appliedJobs')">Applied Jobs</button>
-            <button class="btn btn-warning m-1" onclick="showTab('shortlistedJobs')">Shortlisted Jobs</button>
-            <button class="btn btn-secondary m-1" onclick="showTab('messages')">Messages</button>
-        </div>
+
+    <div class="row my-3 text-center">
+        <div class="col-md-2 m-1"><button class="btn btn-primary w-100" onclick="showTab('allJobs')">Job Listings</button></div>
+        <div class="col-md-2 m-1"><button class="btn btn-success w-100" onclick="showTab('appliedJobs')">Applied Jobs</button></div>
+        <div class="col-md-2 m-1"><button class="btn btn-warning w-100" onclick="showTab('shortlistedJobs')">Shortlisted Jobs</button></div>
+        <div class="col-md-2 m-1"><button class="btn btn-info w-100" onclick="showTab('messages')">Messages</button></div>
     </div>
 
-    <div id="dashboardContent" class="row mt-4">
-        <!-- Dynamic Content -->
-    </div>
+    <div id="dashboardContent" class="row mt-4"></div>
 </div>
 
 <script src="js/main.js"></script>
@@ -47,7 +44,7 @@ function logout(){
 
 function showTab(tab){
     const container = document.getElementById('dashboardContent');
-    container.innerHTML = '<p class="text-center">Loading...</p>';
+    container.innerHTML='<p class="text-center">Loading...</p>';
 
     if(tab==='allJobs') loadAllJobs();
     else if(tab==='appliedJobs') loadAppliedJobs();
@@ -55,67 +52,86 @@ function showTab(tab){
     else if(tab==='messages') loadMessages();
 }
 
-// -------------------- LOAD JOBS --------------------
+// -------------------- ALL JOBS --------------------
 async function loadAllJobs(){
-    const jobs = await fetchJobs();
+    const res = await fetch(`${BASE_URL}/jobs`);
+    const jobs = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
-    if(jobs.length===0){ container.innerHTML='<p>No jobs available</p>'; return;}
+    if(!jobs || jobs.length===0){ container.innerHTML='<p>No jobs available</p>'; return;}
+
     jobs.forEach(job=>{
         const card = document.createElement('div');
         card.className='col-md-4 mb-3';
         card.innerHTML=`
         <div class="card p-3 shadow hover-card">
             <h5>${job.title}</h5>
-            <p>${job.company}</p>
-            <p>Skills: ${job.skills}</p>
-            <button class="btn btn-primary" onclick="applyJob(${job.id})">Apply</button>
+            <p>Company: ${job.company}</p>
+            <p>Role: ${job.role}</p>
+            <p>Location: ${job.location}</p>
+            <p>Last Date: ${new Date(job.endDate).toLocaleDateString()}</p>
+            <button class="btn btn-primary btn-sm" onclick="applyJob(${job.id})">Apply</button>
         </div>`;
         container.appendChild(card);
     });
 }
 
-// -------------------- LOAD APPLIED JOBS --------------------
+// -------------------- APPLY JOBS --------------------
+async function applyJob(jobId){
+    const res = await fetch(`${BASE_URL}/jobs/${jobId}/apply`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({userId:user.id})
+    });
+    if(res.ok) alert('Applied successfully!');
+    else alert('Error applying for job.');
+}
+
+// -------------------- APPLIED JOBS --------------------
 async function loadAppliedJobs(){
-    const res = await fetch(`${BASE_URL}/applied?candidateId=${user.id}`);
-    const data = await res.json();
+    const res = await fetch(`${BASE_URL}/users/${user.id}/appliedJobs`);
+    const jobs = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
-    if(!data.jobs || data.jobs.length===0){ container.innerHTML='<p>No applied jobs</p>'; return;}
-    data.jobs.forEach(job=>{
+    if(!jobs || jobs.length===0){ container.innerHTML='<p>No applied jobs</p>'; return;}
+
+    jobs.forEach(job=>{
         const card = document.createElement('div');
         card.className='col-md-4 mb-3';
         card.innerHTML=`
         <div class="card p-3 shadow hover-card">
             <h5>${job.title}</h5>
-            <p>${job.company}</p>
+            <p>Company: ${job.company}</p>
             <p>Status: ${job.status}</p>
+            ${job.status==='shortlisted' ? `<p>Interview: ${new Date(job.interviewDate).toLocaleString()}</p>` : ''}
         </div>`;
         container.appendChild(card);
     });
 }
 
-// -------------------- LOAD SHORTLISTED JOBS --------------------
+// -------------------- SHORTLISTED JOBS --------------------
 async function loadShortlistedJobs(){
-    const res = await fetch(`${BASE_URL}/shortlisted?candidateId=${user.id}`);
-    const data = await res.json();
+    const res = await fetch(`${BASE_URL}/users/${user.id}/shortlistedJobs`);
+    const jobs = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
-    if(!data.jobs || data.jobs.length===0){ container.innerHTML='<p>No shortlisted jobs</p>'; return;}
-    data.jobs.forEach(job=>{
+    if(!jobs || jobs.length===0){ container.innerHTML='<p>No shortlisted jobs</p>'; return;}
+
+    jobs.forEach(job=>{
         const card = document.createElement('div');
         card.className='col-md-4 mb-3';
         card.innerHTML=`
         <div class="card p-3 shadow hover-card">
             <h5>${job.title}</h5>
-            <p>${job.company}</p>
-            <p>Interview: ${job.interviewDate || 'Not scheduled'}</p>
+            <p>Company: ${job.company}</p>
+            <p>Interview: ${new Date(job.interviewDate).toLocaleString()}</p>
+            <p><strong>Recruiter:</strong> ${job.recruiterName}</p>
         </div>`;
         container.appendChild(card);
     });
 }
 
-// -------------------- LOAD MESSAGES --------------------
+// -------------------- MESSAGES --------------------
 async function loadMessages(){
     const res = await fetch(`${BASE_URL}/messages?userId=${user.id}`);
     const data = await res.json();
@@ -134,9 +150,6 @@ async function loadMessages(){
         container.appendChild(card);
     });
 }
-
-// Load all jobs on page load
-showTab('allJobs');
 </script>
 </body>
 </html>
