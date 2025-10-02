@@ -1,4 +1,14 @@
-body { font-family: 'Segoe UI', sans-serif; }
-.card { transition: transform 0.3s; cursor: pointer; }
-.card:hover { transform: scale(1.05); }
-.navbar { margin-bottom: 30px; }
+.hover-card:hover{
+    transform: translateY(-5px);
+    transition:0.3s;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+body{
+    background:#f5f6fa;
+}
+header{
+    background: linear-gradient(45deg,#6c5ce7,#00b894);
+    color:#fff;
+    padding:80px 0;
+    border-radius:15px;
+}
