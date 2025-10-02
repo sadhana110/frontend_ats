@@ -5,61 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Recruiter Dashboard</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-<nav class="navbar">
-    <div class="logo" onclick="goHome()">JobPortal</div>
-    <ul class="nav-links"><li><a href="index.html">Logout</a></li></ul>
+
+<header>
+<h1>Recruiter Dashboard</h1>
+<nav>
+    <button onclick="showSection('profile')">Profile</button>
+    <button onclick="showSection('postJob')">Post Job</button>
+    <button onclick="showSection('manageJob')">Manage Jobs</button>
+    <button onclick="showSection('applications')">Applications</button>
+    <button onclick="showSection('shortlisted')">Shortlisted</button>
+    <button onclick="showSection('messages')">Messages</button>
+    <button onclick="logout()">Logout</button>
 </nav>
+</header>
 
-<section>
-<h2>Recruiter Dashboard</h2>
-<div class="cards">
-    <div class="card" onclick="showPostJob()">Post Job</div>
-    <div class="card" onclick="showManageJob()">Manage Jobs</div>
-    <div class="card" onclick="showApplications()">Applications</div>
-    <div class="card" onclick="showShortlisted()">Shortlisted Applicants</div>
-    <div class="card" onclick="showMessages()">Messages</div>
-</div>
-<div id="content"></div>
-</section>
+<main>
+    <section id="profile" class="dashboard-section"></section>
+    <section id="postJob" class="dashboard-section"></section>
+    <section id="manageJob" class="dashboard-section"></section>
+    <section id="applications" class="dashboard-section"></section>
+    <section id="shortlisted" class="dashboard-section"></section>
+    <section id="messages" class="dashboard-section"></section>
+</main>
 
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const email = urlParams.get('email');
-
-function goHome(){ window.location.href='index.html'; }
-
-function showPostJob(){
-    document.getElementById('content').innerHTML = `
-    <h3>Post a Job</h3>
-    <form id="postJobForm">
-        <input type="text" id="jobTitle" placeholder="Job Title" required>
-        <input type="text" id="jobCompany" placeholder="Company Name" required>
-        <input type="text" id="jobLocation" placeholder="Location" required>
-        <textarea id="jobDesc" placeholder="Job Description" required></textarea>
-        <input type="date" id="jobEndDate" required>
-        <button type="submit">Post Job</button>
-    </form>`;
-    document.getElementById('postJobForm').addEventListener('submit', async e=>{
-        e.preventDefault();
-        const data={
-            title:document.getElementById('jobTitle').value,
-            company:email,
-            location:document.getElementById('jobLocation').value,
-            description:document.getElementById('jobDesc').value,
-            end_date:document.getElementById('jobEndDate').value
-        };
-        try{ await axios.post('https://backend-ats-z0tb.onrender.com/recruiter/job', data); alert('Job Posted'); }
-        catch(err){ alert('Failed'); }
-    });
-}
-
-function showManageJob(){ document.getElementById('content').innerHTML='<p>Manage jobs placeholder</p>'; }
-function showApplications(){ document.getElementById('content').innerHTML='<p>Applications placeholder</p>'; }
-function showShortlisted(){ document.getElementById('content').innerHTML='<p>Shortlisted placeholder</p>'; }
-function showMessages(){ document.getElementById('content').innerHTML='<p>Messages placeholder</p>'; }
-</script>
+<script src="js/recruiter_dashboard.js"></script>
 </body>
 </html>
