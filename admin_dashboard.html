@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo" onclick="goHome()">JobPortal</div>
+    <ul class="nav-links"><li><a href="index.html">Logout</a></li></ul>
+</nav>
+
+<section>
+<h2>Admin Dashboard</h2>
+<div class="cards">
+    <div class="card" onclick="showRecruiters()">Recruiters</div>
+    <div class="card" onclick="showCandidates()">Candidates</div>
+    <div class="card" onclick="showReports()">Reports</div>
+    <div class="card" onclick="showMessages()">Messages</div>
+</div>
+<div id="content"></div>
+</section>
+
+<script>
+function goHome(){ window.location.href='index.html'; }
+function showRecruiters(){ document.getElementById('content').innerHTML='<p>Recruiters list placeholder</p>'; }
+function showCandidates(){ document.getElementById('content').innerHTML='<p>Candidates list placeholder</p>'; }
+function showReports(){ document.getElementById('content').innerHTML='<p>Reports placeholder</p>'; }
+function showMessages(){ document.getElementById('content').innerHTML='<p>Messages placeholder</p>'; }
+</script>
+</body>
+</html>
