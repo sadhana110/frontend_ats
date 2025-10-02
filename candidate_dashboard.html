@@ -32,7 +32,7 @@ function goHome(){ window.location.href='index.html'; }
 
 async function showAppliedJobs(){
     try{
-        const res = await axios.get(`https://your-render-backend-url/candidate/applied_jobs?email=${email}`);
+        const res = await axios.get(`https://backend-ats-z0tb.onrender.com/candidate/applied_jobs?email=${email}`);
         let html = '';
         res.data.forEach(job => {
             html += `<div class="job-card">
