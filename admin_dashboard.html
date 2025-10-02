@@ -9,7 +9,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="index.html">JobPortal Admin</a>
+    <a class="navbar-brand" href="#">JobPortal Admin</a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Logout</a></li>
@@ -19,7 +19,8 @@
 </nav>
 
 <div class="container mt-4">
-    <h2>Welcome, Admin <span id="adminName"></span></h2>
+    <h2>Welcome, <span id="adminName"></span></h2>
+
     <div class="row my-3 text-center">
         <div class="col-md-2 m-1"><button class="btn btn-primary w-100" onclick="showTab('recruiters')">Recruiters</button></div>
         <div class="col-md-2 m-1"><button class="btn btn-success w-100" onclick="showTab('candidates')">Candidates</button></div>
@@ -58,15 +59,14 @@ async function loadRecruiters(){
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
     if(!recruiters || recruiters.length===0){ container.innerHTML='<p>No recruiters</p>'; return;}
-
     recruiters.forEach(r=>{
         const card = document.createElement('div');
         card.className='col-md-4 mb-3';
         card.innerHTML=`
         <div class="card p-3 shadow hover-card">
-            <h5>${r.name}</h5>
-            <p>Company: ${r.company}</p>
-            <p>Email: ${r.email}</p>
+            <p><strong>Name:</strong> ${r.name}</p>
+            <p><strong>Email:</strong> ${r.email}</p>
+            <p><strong>Company:</strong> ${r.company}</p>
             <button class="btn btn-danger btn-sm" onclick="banUser(${r.id})">Ban</button>
             <button class="btn btn-warning btn-sm" onclick="investigateUser(${r.id})">Investigate</button>
         </div>`;
@@ -81,15 +81,13 @@ async function loadCandidates(){
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
     if(!candidates || candidates.length===0){ container.innerHTML='<p>No candidates</p>'; return;}
-
     candidates.forEach(c=>{
         const card = document.createElement('div');
         card.className='col-md-4 mb-3';
         card.innerHTML=`
         <div class="card p-3 shadow hover-card">
-            <h5>${c.name}</h5>
-            <p>Email: ${c.email}</p>
-            <p>Applied Jobs: ${c.appliedJobs?.length || 0}</p>
+            <p><strong>Name:</strong> ${c.name}</p>
+            <p><strong>Email:</strong> ${c.email}</p>
             <button class="btn btn-danger btn-sm" onclick="banUser(${c.id})">Ban</button>
             <button class="btn btn-warning btn-sm" onclick="investigateUser(${c.id})">Investigate</button>
         </div>`;
@@ -104,20 +102,24 @@ async function loadReports(){
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
     if(!reports || reports.length===0){ container.innerHTML='<p>No reports</p>'; return;}
-
     reports.forEach(r=>{
         const card = document.createElement('div');
         card.className='col-md-6 mb-3';
         card.innerHTML=`
         <div class="card p-3 shadow hover-card">
-            <p><strong>From Candidate:</strong> ${r.candidateName}</p>
-            <p><strong>Company:</strong> ${r.companyName}</p>
-            <p>Reason: ${r.reason}</p>
-            <button class="btn btn-success btn-sm" onclick="actionTaken(${r.id})">Action Taken</button>
-            <button class="btn btn-danger btn-sm" onclick="removeReport(${r.id})">Remove</button>
+            <p><strong>Candidate:</strong> ${r.candidateName}</p>
+            <p><strong>Company:</strong> ${r.company}</p>
+            <p><strong>Job:</strong> ${r.jobTitle}</p>
+            <p><strong>Report:</strong> ${r.report}</p>
+            <button class="btn btn-primary btn-sm" onclick="resolveReport(${r.id})">Action Taken</button>
         </div>`;
         container.appendChild(card);
     });
+}
+
+async function resolveReport(reportId){
+    const res = await fetch(`${BASE_URL}/reports/${reportId}/resolve`,{method:'POST'});
+    if(res.ok) { alert('Report resolved'); loadReports(); }
 }
 
 // -------------------- MESSAGES --------------------
@@ -140,11 +142,17 @@ async function loadMessages(){
     });
 }
 
-// -------------------- ACTIONS --------------------
-async function banUser(id){ await fetch(`${BASE_URL}/users/${id}/ban`,{method:'POST'}); showTab('recruiters'); }
-async function investigateUser(id){ await fetch(`${BASE_URL}/users/${id}/investigate`,{method:'POST'}); showTab('recruiters'); }
-async function actionTaken(id){ await fetch(`${BASE_URL}/reports/${id}/action`,{method:'POST'}); loadReports();}
-async function removeReport(id){ await fetch(`${BASE_URL}/reports/${id}`,{method:'DELETE'}); loadReports();}
+// -------------------- ADMIN ACTIONS --------------------
+async function banUser(userId){
+    if(!confirm('Ban this user?')) return;
+    const res = await fetch(`${BASE_URL}/users/${userId}/ban`,{method:'POST'});
+    if(res.ok) { alert('User banned'); loadRecruiters(); loadCandidates(); }
+}
+
+async function investigateUser(userId){
+    const res = await fetch(`${BASE_URL}/users/${userId}/investigate`,{method:'POST'});
+    if(res.ok) { alert('User under investigation'); loadRecruiters(); loadCandidates(); }
+}
 </script>
 </body>
 </html>
