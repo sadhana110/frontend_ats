@@ -1,714 +1,126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Super Naukri Clone</title>
-
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Google font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --primary:#003399;   /* deep blue */
-      --accent:#ff6600;    /* orange accent */
-      --light:#f5f7fb;
-      --muted:#6c757d;
-    }
-    body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: var(--light); margin:0; }
-    nav { background: linear-gradient(90deg,var(--primary), #0066cc); }
-    .brand { color: #fff; font-weight:700; letter-spacing:0.4px; }
-    .nav-btn { color:#fff; border:1px solid rgba(255,255,255,0.12); }
-    .card { border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.06); }
-    .job-card { transition: transform .14s, box-shadow .14s; }
-    .job-card:hover{ transform: translateY(-4px); box-shadow:0 12px 28px rgba(2,6,23,0.10); }
-    .chip { display:inline-block; padding:6px 10px; background:#eef6ff; color:#0056b3; border-radius:999px; font-size:0.85rem; margin:3px; }
-    .status { padding:6px 10px; border-radius:8px; font-size:0.85rem; color:#fff; }
-    .s-applied{ background:#0d6efd; } .s-viewed{ background:#6c757d; } .s-short{ background:#198754; } .s-rej{ background:#dc3545; }
-    .hidden{ display:none; }
-    .sidebar { min-width:220px; max-width:260px; }
-    .text-muted-sm{ color: #6c757d; font-size:0.9rem; }
-    .toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 1080; }
-    input[type=file] { padding:6px 0; }
-    .small-muted { font-size:0.85rem; color:var(--muted); }
-    .matches { font-weight:600; color:#0d6efd; }
-    @media(max-width:980px){
-      .sidebar { display:none; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Portal</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg">
-  <div class="container-fluid">
-    <a class="navbar-brand brand" href="#" onclick="navHome()">Naukri · Clone</a>
-    <div class="d-flex gap-2">
-      <button id="btnGuestSearch" class="btn btn-sm btn-outline-light" onclick="navHome()">Browse Jobs</button>
-      <div id="authButtons" class="d-flex gap-2">
-        <button class="btn btn-sm btn-light" onclick="showSection('applicantRegister')">Applicant Register</button>
-        <button class="btn btn-sm btn-light" onclick="showSection('applicantLogin')">Applicant Login</button>
-        <button class="btn btn-sm btn-light" onclick="showSection('hrRegister')">HR Register</button>
-        <button class="btn btn-sm btn-light" onclick="showSection('hrLogin')">HR Login</button>
-      </div>
-
-      <div id="userMenu" class="d-none align-items-center">
-        <span id="userName" class="text-white me-2"></span>
-        <div class="dropdown">
-          <button class="btn btn-sm btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">Menu</button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" onclick="navDashboard()">Dashboard</a></li>
-            <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+<nav class="navbar">
+    <div class="logo" onclick="goHome()">JobPortal</div>
+    <ul class="nav-links"><li><a href="#" onclick="showLogin()">Login</a></li></ul>
 </nav>
 
-<div class="container py-4">
+<!-- Landing -->
+<section id="landing">
+    <h1>Find Your Dream Job</h1>
+    <p>Jobs, Recruiters & Candidates – All in One Place</p>
+    <button onclick="showLogin()">Login</button>
+</section>
 
-  <!-- HOME / GUEST BROWSE -->
-  <div id="homeSection">
-    <div class="row">
-      <div class="col-lg-3 sidebar mb-3">
-        <div class="card p-3">
-          <h6 class="mb-2">Search & Filters</h6>
-          <input id="searchQ" class="form-control mb-2" placeholder="Job title, skills...">
-          <input id="filterLocation" class="form-control mb-2" placeholder="Location">
-          <div class="mb-2">
-            <label class="small-muted">Min Experience (yrs)</label>
-            <input id="filterExp" type="number" min="0" class="form-control" placeholder="0">
-          </div>
-          <button class="btn btn-primary w-100" onclick="loadJobs()">Search</button>
-        </div>
+<!-- Login -->
+<section id="loginSection" class="hidden">
+    <h2>Login</h2>
+    <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <select id="loginRole">
+            <option value="candidate">Candidate</option>
+            <option value="recruiter">Recruiter</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+</section>
 
-        <div class="card mt-3 p-3">
-          <h6>Profile Strength</h6>
-          <div class="progress mb-2" style="height:10px;">
-            <div id="profileStrength" class="progress-bar" role="progressbar" style="width: 20%;"></div>
-          </div>
-          <div class="small-muted">Complete your profile to get better matches</div>
-        </div>
-      </div>
-
-      <div class="col-lg-9">
-        <div id="jobsList" class="mb-4"></div>
-      </div>
+<!-- Role Selection -->
+<section id="roleSelection" class="hidden">
+    <h2>Select Role</h2>
+    <div class="cards">
+        <div class="card" onclick="showCandidateRegister()">Candidate</div>
+        <div class="card" onclick="showRecruiterRegister()">Recruiter</div>
     </div>
-  </div>
+</section>
 
-  <!-- APPLICANT REGISTER -->
-  <div id="applicantRegister" class="hidden">
-    <div class="card p-4 mb-4">
-      <h4>Applicant Registration</h4>
-      <div class="row g-2">
-        <div class="col-md-6"><input id="a_name" class="form-control" placeholder="Full name"></div>
-        <div class="col-md-3"><input id="a_age" class="form-control" placeholder="Age" type="number"></div>
-        <div class="col-md-3"><input id="a_contact" class="form-control" placeholder="Contact"></div>
-        <div class="col-md-6"><input id="a_email" class="form-control" placeholder="Email"></div>
-        <div class="col-md-6"><input id="a_password" class="form-control" placeholder="Password" type="password"></div>
+<!-- Candidate Registration -->
+<section id="candidateRegister" class="hidden">
+    <h2>Candidate Registration</h2>
+    <form id="candidateForm">
+        <input type="text" id="candName" placeholder="Full Name" required>
+        <input type="email" id="candEmail" placeholder="Email" required>
+        <input type="password" id="candPassword" placeholder="Password" required>
+        <input type="text" id="candSkills" placeholder="Skills (comma separated)">
+        <input type="text" id="candPhone" placeholder="Phone">
+        <button type="submit">Register</button>
+    </form>
+</section>
 
-        <div class="col-md-6"><input id="a_current_role" class="form-control" placeholder="Current Job Title"></div>
-        <div class="col-md-6"><input id="a_experience" class="form-control" placeholder="Experience (years)" type="number"></div>
-
-        <div class="col-md-6"><input id="a_degree" class="form-control" placeholder="Highest Degree"></div>
-        <div class="col-md-6"><input id="a_university" class="form-control" placeholder="University/College"></div>
-
-        <div class="col-12"><input id="a_skills" class="form-control" placeholder="Skills (comma separated)"></div>
-        <div class="col-md-6">
-          <label class="form-label small-muted">Resume (PDF/DOC)</label>
-          <input id="a_resume" type="file" class="form-control">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label small-muted">LinkedIn / GitHub (optional)</label>
-          <input id="a_links" class="form-control" placeholder="https://">
-        </div>
-
-        <div class="col-12">
-          <button class="btn btn-primary" onclick="registerApplicant()">Create account</button>
-          <button class="btn btn-link" onclick="showSection('applicantLogin')">Already registered? Login</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- APPLICANT LOGIN -->
-  <div id="applicantLogin" class="hidden">
-    <div class="card p-4 mb-4">
-      <h4>Applicant Login</h4>
-      <div class="row g-2">
-        <div class="col-md-6"><input id="li_a_email" class="form-control" placeholder="Email"></div>
-        <div class="col-md-6"><input id="li_a_pass" class="form-control" placeholder="Password" type="password"></div>
-        <div class="col-12">
-          <button class="btn btn-primary" onclick="loginApplicant()">Login</button>
-          <button class="btn btn-link" onclick="showSection('applicantRegister')">Register as Applicant</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- APPLICANT DASHBOARD -->
-  <div id="applicantDashboard" class="hidden">
-    <div class="row">
-      <div class="col-lg-3 sidebar">
-        <div class="card p-3 mb-3">
-          <h6 id="a_headline">Applicant</h6>
-          <div id="a_contact_box" class="small-muted"></div>
-          <div class="mt-3">
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="loadJobs()">Job Feed</button>
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="loadAppliedJobs()">Applied Jobs</button>
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="loadSavedJobs()">Saved Jobs</button>
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="openMessages('applicant')">Messages</button>
-            <button class="btn btn-outline-secondary w-100" onclick="showProfile('applicant')">Profile</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-9">
-        <div id="applicantMain" class="mb-4"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HR REGISTER -->
-  <div id="hrRegister" class="hidden">
-    <div class="card p-4 mb-4">
-      <h4>HR / Company Registration</h4>
-      <div class="row g-2">
-        <div class="col-md-6"><input id="hr_name" class="form-control" placeholder="HR Name"></div>
-        <div class="col-md-6"><input id="hr_company" class="form-control" placeholder="Company Name"></div>
-        <div class="col-md-6"><input id="hr_email" class="form-control" placeholder="Email"></div>
-        <div class="col-md-6"><input id="hr_pass" class="form-control" placeholder="Password" type="password"></div>
-        <div class="col-12">
-          <textarea id="hr_desc" class="form-control" placeholder="Company description (optional)"></textarea>
-        </div>
-        <div class="col-12">
-          <button class="btn btn-primary" onclick="registerHR()">Create Company</button>
-          <button class="btn btn-link" onclick="showSection('hrLogin')">Already registered? Login</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HR LOGIN -->
-  <div id="hrLogin" class="hidden">
-    <div class="card p-4 mb-4">
-      <h4>HR Login</h4>
-      <div class="row g-2">
-        <div class="col-md-6"><input id="li_hr_email" class="form-control" placeholder="Email"></div>
-        <div class="col-md-6"><input id="li_hr_pass" class="form-control" placeholder="Password" type="password"></div>
-        <div class="col-12">
-          <button class="btn btn-primary" onclick="loginHR()">Login</button>
-          <button class="btn btn-link" onclick="showSection('hrRegister')">Register as HR</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HR DASHBOARD -->
-  <div id="hrDashboard" class="hidden">
-    <div class="row">
-      <div class="col-lg-3 sidebar">
-        <div class="card p-3 mb-3">
-          <h6 id="hr_company_name">HR</h6>
-          <div class="mt-3">
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="showPostJob()">Post Job</button>
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="manageJobs()">Manage Jobs</button>
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="hrViewApplications()">Applications</button>
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="openMessages('hr')">Messages</button>
-            <button class="btn btn-outline-secondary w-100" onclick="showProfile('hr')">Profile</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-9">
-        <div id="hrMain" class="mb-4"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MESSAGE MODAL -->
-  <div class="modal fade" id="messageModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 id="messageModalTitle" class="modal-title">Messages</h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="messageModalBody" style="min-height:250px"></div>
-        <div class="modal-footer">
-          <input id="messageText" class="form-control me-2" placeholder="Write a message...">
-          <button class="btn btn-primary" onclick="sendMessage()">Send</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Toast container -->
-<div class="toast-container" id="toasts"></div>
-
-<!-- Bootstrap JS & dependencies -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Recruiter Registration -->
+<section id="recruiterRegister" class="hidden">
+    <h2>Recruiter Registration</h2>
+    <form id="recruiterForm">
+        <input type="text" id="recName" placeholder="Full Name" required>
+        <input type="email" id="recEmail" placeholder="Email" required>
+        <input type="password" id="recPassword" placeholder="Password" required>
+        <input type="text" id="recCompany" placeholder="Company Name">
+        <input type="text" id="recPhone" placeholder="Phone">
+        <button type="submit">Register</button>
+    </form>
+</section>
 
 <script>
-/* ========== CONFIG ========== */
-const BACKEND = "https://backend-ats-z0tb.onrender.com"; // locked backend
-let currentUser = JSON.parse(localStorage.getItem('portal_user') || "null"); // {role:'applicant'|'hr', email:...}
+function hideAll(){ document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));}
+function goHome(){ hideAll(); document.getElementById('landing').classList.remove('hidden'); }
+function showLogin(){ hideAll(); document.getElementById('loginSection').classList.remove('hidden'); }
+function showRegister(){ hideAll(); document.getElementById('roleSelection').classList.remove('hidden'); }
+function showCandidateRegister(){ hideAll(); document.getElementById('candidateRegister').classList.remove('hidden'); }
+function showRecruiterRegister(){ hideAll(); document.getElementById('recruiterRegister').classList.remove('hidden'); }
 
-/* ========== UTIL ======== */
-function showToast(msg, type='primary'){
-  const id = 't'+Date.now();
-  const toastEl = document.createElement('div');
-  toastEl.className = `toast align-items-center text-bg-${type} border-0`;
-  toastEl.role = "alert"; toastEl.ariaLive = "assertive"; toastEl.ariaAtomic = "true";
-  toastEl.style.minWidth = "240px";
-  toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-  document.getElementById('toasts').appendChild(toastEl);
-  const bs = new bootstrap.Toast(toastEl, { delay: 2500 });
-  bs.show();
-  toastEl.addEventListener('hidden.bs.toast', ()=> toastEl.remove());
-}
+// Login
+document.getElementById('loginForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const email=document.getElementById('loginEmail').value;
+    const password=document.getElementById('loginPassword').value;
+    const role=document.getElementById('loginRole').value;
+    try{
+        const res=await axios.post('https://your-render-backend-url/login',{email,password,role});
+        if(res.data.status==='success'){ window.location.href=`${role}_dashboard.html?email=${email}`; }
+        else{ alert(res.data.message); }
+    }catch(err){ alert('Login Failed'); }
+});
 
-function showSection(id){
-  // hide all top-level "sections"
-  const sections = ['homeSection','applicantRegister','applicantLogin','applicantDashboard','hrRegister','hrLogin','hrDashboard'];
-  sections.forEach(s=> document.getElementById(s).classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-  updateAuthUI();
-}
-
-/* ========== NAV + AUTH UI ========== */
-function navHome(){ showSection('homeSection'); loadJobs(); }
-function updateAuthUI(){
-  const auth = document.getElementById('authButtons');
-  const menu = document.getElementById('userMenu');
-  if(currentUser){
-    auth.classList.add('d-none');
-    menu.classList.remove('d-none');
-    document.getElementById('userName').textContent = currentUser.name || currentUser.email;
-  } else {
-    auth.classList.remove('d-none');
-    menu.classList.add('d-none');
-  }
-}
-
-/* ========== FILE -> BASE64 UTILS ========== */
-function fileToBase64(file){ return new Promise((res,rej)=>{
-  const reader = new FileReader();
-  reader.onload = ()=> res(reader.result);
-  reader.onerror = ()=> rej("err");
-  reader.readAsDataURL(file);
-}); }
-
-/* ========== APPLICANT ACTIONS ========== */
-
-async function registerApplicant(){
-  try{
-    const resumeFile = document.getElementById('a_resume').files[0];
-    const resumeBase = resumeFile ? await fileToBase64(resumeFile) : null;
-    const payload = {
-      name: document.getElementById('a_name').value,
-      age: document.getElementById('a_age').value,
-      contact: document.getElementById('a_contact').value,
-      email: document.getElementById('a_email').value,
-      password: document.getElementById('a_password').value,
-      current_role: document.getElementById('a_current_role').value,
-      experience: document.getElementById('a_experience').value,
-      degree: document.getElementById('a_degree').value,
-      university: document.getElementById('a_university').value,
-      skills: (document.getElementById('a_skills').value || "").split(',').map(s=>s.trim()).filter(Boolean),
-      resume: resumeBase,
-      links: document.getElementById('a_links').value
+// Candidate Registration
+document.getElementById('candidateForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const data={
+        name:document.getElementById('candName').value,
+        email:document.getElementById('candEmail').value,
+        password:document.getElementById('candPassword').value,
+        skills:document.getElementById('candSkills').value,
+        phone:document.getElementById('candPhone').value
     };
-    const r = await fetch(BACKEND + '/register_applicant',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-    const j = await r.json();
-    if(r.ok){ showToast('Applicant registered','success'); showSection('applicantLogin'); }
-    else { showToast(j.msg || 'Register failed','danger'); }
-  }catch(e){ showToast('Error','danger'); console.error(e); }
-}
+    try{ await axios.post('https://your-render-backend-url/register/candidate',data); alert('Registered'); showLogin(); }
+    catch(err){ alert('Failed'); }
+});
 
-async function loginApplicant(){
-  const email = document.getElementById('li_a_email').value;
-  const password = document.getElementById('li_a_pass').value;
-  const r = await fetch(BACKEND + '/login_applicant',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password})});
-  if(r.ok){
-    const j = await r.json();
-    currentUser = { role: 'applicant', email: j.data.email, name: j.data.name };
-    localStorage.setItem('portal_user', JSON.stringify(currentUser));
-    showToast('Logged in','success');
-    showSection('applicantDashboard');
-    loadApplicantDashboard();
-  } else {
-    const j = await r.json().catch(()=>({msg:'Login failed'}));
-    showToast(j.msg || 'Login failed','danger');
-  }
-}
-
-async function loadApplicantDashboard(){
-  // load profile summary and jobs
-  const res = await fetch(BACKEND + '/get_profile_applicant/' + encodeURIComponent(currentUser.email));
-  const j = await res.json();
-  document.getElementById('a_headline').textContent = j.data.name + ' · ' + (j.data.current_role || '');
-  document.getElementById('a_contact_box').innerHTML = `<div class="small-muted">${j.data.email} • ${j.data.contact || ''}</div>`;
-  showSection('applicantDashboard');
-  loadJobs(); // auto load jobs into home-like list
-}
-
-async function loadJobs(){
-  // search + filters
-  const q = (document.getElementById('searchQ')||{value:''}).value;
-  const exp = (document.getElementById('filterExp')||{value:''}).value;
-  const loc = (document.getElementById('filterLocation')||{value:''}).value;
-  let url = BACKEND + '/get_jobs?q=' + encodeURIComponent(q) + '&exp=' + encodeURIComponent(exp) + '&location=' + encodeURIComponent(loc);
-  const res = await fetch(url);
-  const j = await res.json();
-  const jobs = j.jobs || [];
-  const container = document.getElementById('jobsList');
-  container.innerHTML = '';
-  if(!jobs.length) container.innerHTML = `<div class="card p-3">No active jobs found</div>`;
-  for(const job of jobs){
-    // match score
-    let matches = 0;
-    let requiredSkills = (job.skills||[]).map(s=>s.toLowerCase().trim());
-    let userSkills = [];
-    if(currentUser && currentUser.role==='applicant'){
-      const p = await (await fetch(BACKEND + '/get_profile_applicant/' + encodeURIComponent(currentUser.email))).json();
-      userSkills = (p.data.skills||[]).map(s=>s.toLowerCase().trim());
-      for(const sk of requiredSkills) if(userSkills.includes(sk)) matches++;
-    }
-    const matchPercent = requiredSkills.length ? Math.round(matches / requiredSkills.length * 100) : 0;
-
-    const card = document.createElement('div');
-    card.className = 'card p-3 mb-3 job-card';
-    card.innerHTML = `
-      <div class="d-flex justify-content-between">
-        <div>
-          <h5 class="mb-1">${escapeHtml(job.title)}</h5>
-          <div class="small-muted-sm">${escapeHtml(job.company || job.posted_by || 'Company')} • ${escapeHtml(job.location || 'Anywhere')}</div>
-        </div>
-        <div class="text-end small-muted">
-          Posted: ${escapeHtml(job.created_at.split('T')[0])}<br>
-          Exp: ${escapeHtml(job.experience)} yrs<br>
-          <div class="small-muted">Salary: ${escapeHtml(job.salary||'Not disclosed')}</div>
-        </div>
-      </div>
-      <p class="mt-2 mb-1">${escapeHtml((job.description||'').slice(0,250))}${(job.description||'').length>250?'...':''}</p>
-      <div class="mb-2">${(job.skills||[]).map(s=>`<span class="chip">${escapeHtml(s)}</span>`).join('')}</div>
-      <div class="d-flex justify-content-between align-items-center">
-        <div><small class="small-muted">Match: <span class="matches">${matchPercent}%</span></small></div>
-        <div>
-          ${ currentUser && currentUser.role === 'applicant' ? 
-            `<button class="btn btn-sm btn-primary" onclick="applyToJob('${job.id}')">Apply</button>
-             <button class="btn btn-sm btn-outline-secondary ms-1" onclick="saveJob('${job.id}')">Save</button>
-             <button class="btn btn-sm btn-link ms-1" onclick="openJobDetails('${job.id}')">Details</button>` :
-            (currentUser && currentUser.role==='hr' && currentUser.email === job.posted_by ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteJob('${job.id}')">Delete</button><button class="btn btn-sm btn-outline-primary ms-1" onclick="editJobForm('${job.id}')">Edit</button>` : `<button class="btn btn-sm btn-link" onclick="openJobDetails('${job.id}')">Details</button>`)
-          }
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-  }
-}
-
-/* escape html for safety (simple) */
-function escapeHtml(s=''){ return String(s).replace(/[&<>"']/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
-
-/* Job details modal or details view (simple) */
-async function openJobDetails(jobId){
-  const r = await fetch(BACKEND + '/get_job/' + encodeURIComponent(jobId));
-  if(!r.ok){ showToast('Job not found','danger'); return; }
-  const j = await r.json();
-  const job = j.job;
-  const modalContent = `
-    <div><h5>${escapeHtml(job.title)}</h5>
-    <div class="small-muted">${escapeHtml(job.company || job.posted_by)} • ${escapeHtml(job.location || '')}</div>
-    <p class="mt-3">${escapeHtml(job.description)}</p>
-    <div>${(job.skills||[]).map(s=>`<span class="chip">${escapeHtml(s)}</span>`).join(' ')}</div>
-    <div class="mt-3"><small class="small-muted">Expires: ${escapeHtml(job.end_date)}</small></div>
-    <div class="mt-3"> <button class="btn btn-primary" onclick="applyToJob('${job.id}')">Apply</button> <button class="btn btn-outline-secondary ms-1" onclick="saveJob('${job.id}')">Save</button> </div>
-    </div>
-  `;
-  // show in applicantMain area if logged in, else replace jobsList
-  if(currentUser && currentUser.role==='applicant'){
-    document.getElementById('applicantMain').innerHTML = `<div class="card p-3">${modalContent}</div>`;
-    showSection('applicantDashboard');
-  } else {
-    document.getElementById('jobsList').innerHTML = `<div class="card p-3">${modalContent}</div>`;
-  }
-}
-
-/* APPLY */
-async function applyToJob(jobId){
-  if(!currentUser || currentUser.role!=='applicant'){ showToast('Please login as applicant','warning'); showSection('applicantLogin'); return; }
-  // send apply request
-  const payload = { job_id: jobId, applicant_email: currentUser.email };
-  const r = await fetch(BACKEND + '/apply_job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const j = await r.json();
-  if(r.ok){ showToast('Applied successfully','success'); loadApplicantAppliedCount(); }
-  else showToast(j.msg || 'Apply failed','danger');
-}
-
-/* Save job */
-async function saveJob(jobId){
-  if(!currentUser || currentUser.role!=='applicant'){ showToast('Login as applicant','warning'); showSection('applicantLogin'); return; }
-  const r = await fetch(BACKEND + '/save_job',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({applicant_email:currentUser.email, job_id:jobId})});
-  const j = await r.json();
-  if(r.ok) showToast('Saved','success'); else showToast(j.msg||'Save failed','danger');
-}
-
-/* Load applied jobs (applicant) */
-async function loadAppliedJobs(){
-  if(!currentUser || currentUser.role!=='applicant'){ showSection('applicantLogin'); showToast('Login required','warning'); return; }
-  const r = await fetch(BACKEND + '/get_applied_jobs/' + encodeURIComponent(currentUser.email));
-  const j = await r.json();
-  const apps = j.applied || [];
-  const cont = document.getElementById('applicantMain');
-  cont.innerHTML = `<h5>Applied Jobs (${apps.length})</h5>`;
-  for(const a of apps){
-    const jobRes = await fetch(BACKEND + '/get_job/' + encodeURIComponent(a.job_id));
-    const jobj = (await jobRes.json()).job || {};
-    const statusClass = a.status==='Applied' ? 's-applied' : a.status==='Viewed' ? 's-viewed' : a.status==='Shortlisted' ? 's-short' : 's-rej';
-    cont.innerHTML += `<div class="card p-3 mb-2"><div class="d-flex justify-content-between"><div><h6>${escapeHtml(jobj.title)}</h6><div class="small-muted">${escapeHtml(jobj.company || jobj.posted_by)}</div></div><div><span class="status ${statusClass}">${escapeHtml(a.status)}</span></div></div><p class="mt-2 small-muted">${escapeHtml(jobj.description || '').slice(0,200)}</p></div>`;
-  }
-}
-
-/* Load saved jobs for applicant */
-async function loadSavedJobs(){
-  if(!currentUser || currentUser.role!=='applicant'){ showSection('applicantLogin'); showToast('Login required','warning'); return; }
-  const r = await fetch(BACKEND + '/get_saved_jobs/' + encodeURIComponent(currentUser.email));
-  const j = await r.json();
-  const jobs = j.jobs || [];
-  const cont = document.getElementById('applicantMain');
-  cont.innerHTML = `<h5>Saved Jobs (${jobs.length})</h5>`;
-  for(const job of jobs){
-    cont.innerHTML += `<div class="card p-3 mb-2"><h6>${escapeHtml(job.title)}</h6><div class="small-muted">${escapeHtml(job.company || job.posted_by)}</div><p>${escapeHtml(job.description || '').slice(0,180)}</p></div>`;
-  }
-}
-
-/* Get applied jobs count/update indicator */
-async function loadApplicantAppliedCount(){ /* optional UI update */ }
-
-/* Show applicant profile */
-async function showProfile(role){
-  if(role==='applicant'){
-    const r = await fetch(BACKEND + '/get_profile_applicant/' + encodeURIComponent(currentUser.email));
-    const j = await r.json();
-    const p = j.data;
-    document.getElementById('applicantMain').innerHTML = `<div class="card p-3">
-      <h5>${escapeHtml(p.name)} <span class="small-muted">• ${escapeHtml(p.current_role || '')}</span></h5>
-      <div class="small-muted">${escapeHtml(p.email)} • ${escapeHtml(p.contact || '')}</div>
-      <div class="mt-2"><strong>Experience:</strong> ${escapeHtml(p.experience || '0')} yrs</div>
-      <div class="mt-2"><strong>Skills:</strong> ${(p.skills||[]).map(s=>`<span class="chip">${escapeHtml(s)}</span>`).join(' ')}</div>
-      <div class="mt-3"><button class="btn btn-outline-primary" onclick="showEditProfile('applicant')">Edit Profile</button></div>
-    </div>`;
-  } else {
-    const r = await fetch(BACKEND + '/get_profile_hr/' + encodeURIComponent(currentUser.email));
-    const j = await r.json();
-    const p = j.data;
-    document.getElementById('hrMain').innerHTML = `<div class="card p-3"><h5>${escapeHtml(p.company)}</h5><div class="small-muted">${escapeHtml(p.hr_name)}</div><p>${escapeHtml(p.description || '')}</p></div>`;
-  }
-}
-
-/* Edit profile (basic in-page editor) */
-function showEditProfile(role){
-  if(role==='applicant'){
-    // simple inline form
-    // (for brevity not fully implemented; can be expanded)
-    document.getElementById('applicantMain').innerHTML = `<div class="card p-3">Profile editing is available in future version.</div>`;
-  }
-}
-
-/* ========== HR ACTIONS ========== */
-
-async function registerHR(){
-  const payload = {
-    hr_name: document.getElementById('hr_name').value,
-    company: document.getElementById('hr_company').value,
-    email: document.getElementById('hr_email').value,
-    password: document.getElementById('hr_pass').value,
-    description: document.getElementById('hr_desc').value
-  };
-  const r = await fetch(BACKEND + '/register_hr',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-  const j = await r.json();
-  if(r.ok){ showToast('HR registered','success'); showSection('hrLogin'); } else showToast(j.msg||'Register error','danger');
-}
-
-async function loginHR(){
-  const email = document.getElementById('li_hr_email').value;
-  const password = document.getElementById('li_hr_pass').value;
-  const r = await fetch(BACKEND + '/login_hr',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password})});
-  if(r.ok){ const j = await r.json(); currentUser = { role:'hr', email: j.data.email, name: j.data.hr_name||j.data.company }; localStorage.setItem('portal_user', JSON.stringify(currentUser)); showToast('Logged in HR','success'); showSection('hrDashboard'); loadHRDashboard(); } else { const j = await r.json().catch(()=>({})); showToast(j.msg||'Login failed','danger'); }
-}
-
-async function loadHRDashboard(){
-  if(!currentUser || currentUser.role!=='hr'){ showSection('hrLogin'); return; }
-  document.getElementById('hr_company_name').textContent = currentUser.name || 'HR';
-  showSection('hrDashboard');
-  document.getElementById('hrMain').innerHTML = `<div class="card p-3"><h5>Welcome, ${escapeHtml(currentUser.name)}</h5><p class="small-muted">Use the side menu to post jobs and manage applicants.</p></div>`;
-}
-
-function showPostJob(){
-  document.getElementById('hrMain').innerHTML = `<div class="card p-3">
-    <h5>Post a Job</h5>
-    <div class="row g-2">
-      <div class="col-md-6"><input id="job_title" class="form-control" placeholder="Job title"></div>
-      <div class="col-md-6"><input id="job_location" class="form-control" placeholder="Location"></div>
-      <div class="col-md-6"><input id="job_exp" type="number" class="form-control" placeholder="Experience (years)"></div>
-      <div class="col-md-6"><input id="job_salary" class="form-control" placeholder="Salary"></div>
-      <div class="col-12"><input id="job_skills" class="form-control" placeholder="Skills (comma separated)"></div>
-      <div class="col-12"><textarea id="job_desc" class="form-control" placeholder="Job description"></textarea></div>
-      <div class="col-md-6"><input id="job_enddate" type="date" class="form-control"></div>
-      <div class="col-12"><button class="btn btn-primary" onclick="postJob()">Post Job</button></div>
-    </div>
-  </div>`;
-}
-
-async function postJob(){
-  const payload = {
-    title: document.getElementById('job_title').value,
-    location: document.getElementById('job_location').value,
-    experience: document.getElementById('job_exp').value,
-    salary: document.getElementById('job_salary').value,
-    skills: (document.getElementById('job_skills').value || '').split(',').map(s=>s.trim()).filter(Boolean),
-    description: document.getElementById('job_desc').value,
-    end_date: document.getElementById('job_enddate').value,
-    posted_by: currentUser.email,
-    company: currentUser.name
-  };
-  const r = await fetch(BACKEND + '/post_job',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-  const j = await r.json();
-  if(r.ok){ showToast('Job posted','success'); manageJobs(); } else showToast(j.msg||'Post failed','danger');
-}
-
-async function manageJobs(){
-  const all = await (await fetch(BACKEND + '/get_jobs')).json();
-  const jobs = (all.jobs || []).filter(j=> j.posted_by === currentUser.email);
-  let html = `<h5>Posted Jobs (${jobs.length})</h5>`;
-  for(const job of jobs){
-    html += `<div class="card p-3 mb-2"><div class="d-flex justify-content-between"><div><h6>${escapeHtml(job.title)}</h6><div class="small-muted">${escapeHtml(job.location)}</div></div><div><small class="small-muted">Expires: ${escapeHtml(job.end_date)}</small></div></div><p>${escapeHtml(job.description||'').slice(0,180)}</p><div><button class="btn btn-sm btn-outline-primary" onclick="viewApplicationsForJob('${job.id}')">View Applicants</button> <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteJob('${job.id}')">Delete</button></div></div>`;
-  }
-  document.getElementById('hrMain').innerHTML = html;
-}
-
-async function hrViewApplications(){
-  const r = await fetch(BACKEND + '/get_applications_for_hr/' + encodeURIComponent(currentUser.email));
-  const j = await r.json();
-  const apps = j.applications || [];
-  let html = `<h5>Applications (${apps.length})</h5>`;
-  for(const a of apps){
-    const applicant = a.applicant || {};
-    html += `<div class="card p-3 mb-2"><div class="d-flex justify-content-between"><div><strong>${escapeHtml(applicant.name||applicant.email)}</strong><div class="small-muted">${escapeHtml(applicant.current_role||'')}</div></div><div><span class="small-muted">${escapeHtml(a.status)}</span></div></div><div class="mt-2"><button class="btn btn-sm btn-primary" onclick="shortlistApp('${a.id}')">Shortlist</button> <button class="btn btn-sm btn-outline-danger ms-2" onclick="rejectApp('${a.id}')">Reject</button> <button class="btn btn-sm btn-link ms-2" onclick="openApplicantResume('${a.applicant_email}')">View Resume</button> <button class="btn btn-sm btn-link ms-2" onclick="openMessageTo('${a.applicant_email}','${a.job_id}')">Message</button></div></div>`;
-  }
-  document.getElementById('hrMain').innerHTML = html;
-}
-
-async function viewApplicationsForJob(jobId){
-  const r = await fetch(BACKEND + '/get_applications_for_job/' + encodeURIComponent(jobId));
-  const j = await r.json();
-  const apps = j.applications || [];
-  let html = `<h5>Applicants (${apps.length})</h5>`;
-  for(const a of apps){
-    const applicant = a.applicant || {};
-    html += `<div class="card p-3 mb-2"><div class="d-flex justify-content-between"><div><strong>${escapeHtml(applicant.name||applicant.email)}</strong><div class="small-muted">${escapeHtml(applicant.current_role||'')}</div></div><div><span class="small-muted">${escapeHtml(a.status)}</span></div></div><div class="mt-2"><button class="btn btn-sm btn-primary" onclick="shortlistApp('${a.id}')">Shortlist</button> <button class="btn btn-sm btn-outline-danger ms-2" onclick="rejectApp('${a.id}')">Reject</button> <button class="btn btn-sm btn-link ms-2" onclick="openApplicantResume('${a.applicant_email}')">View Resume</button> <button class="btn btn-sm btn-link ms-2" onclick="openMessageTo('${a.applicant_email}','${a.job_id}')">Message</button></div></div>`;
-  }
-  document.getElementById('hrMain').innerHTML = html;
-}
-
-async function deleteJob(jobId){
-  if(!confirm('Delete job?')) return;
-  const r = await fetch(BACKEND + '/delete_job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job_id:jobId})});
-  if(r.ok){ showToast('Deleted','success'); manageJobs(); loadJobs(); } else showToast('Delete failed','danger');
-}
-
-async function editJobForm(jobId){ showToast('Edit job form not implemented in this version','info'); }
-
-/* SHORTLIST / REJECT from HR */
-async function shortlistApp(appId){ const r = await fetch(BACKEND + '/update_application_status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app_id:appId,status:'Shortlisted'})}); if(r.ok){ showToast('Shortlisted','success'); hrViewApplications(); } }
-async function rejectApp(appId){ const r = await fetch(BACKEND + '/update_application_status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app_id:appId,status:'Rejected'})}); if(r.ok){ showToast('Rejected','warning'); hrViewApplications(); } }
-
-/* Open resume (simple) */
-async function openApplicantResume(email){
-  const r = await fetch(BACKEND + '/get_profile_applicant/' + encodeURIComponent(email));
-  const j = await r.json();
-  const p = j.data || {};
-  if(p.resume){ // base64 blob
-    const w = window.open();
-    w.document.write(`<iframe src="${p.resume}" style="width:100%;height:100vh;border:0"></iframe>`);
-  } else showToast('No resume uploaded','info');
-}
-
-/* Messages: unified modal */
-let messageTarget = { to:'', job_id:null, role:'' };
-
-function openMessageTo(email, job_id=null){
-  messageTarget = { to: email, job_id };
-  document.getElementById('messageModalTitle').textContent = 'Message: ' + email;
-  document.getElementById('messageModalBody').innerHTML = ''; // will load history
-  const modal = new bootstrap.Modal(document.getElementById('messageModal'));
-  modal.show();
-  loadMessageHistory(email, job_id);
-}
-
-async function openMessages(role){
-  if(!currentUser){ showToast('Login first','warning'); return; }
-  messageTarget = { to:'', job_id:null, role };
-  document.getElementById('messageModalTitle').textContent = 'Inbox';
-  document.getElementById('messageModalBody').innerHTML = '<div class="small-muted">Select a conversation to view messages.</div>';
-  const modal = new bootstrap.Modal(document.getElementById('messageModal'));
-  modal.show();
-}
-
-/* load history */
-async function loadMessageHistory(withEmail, job_id=null){
-  // get all messages between currentUser.email and withEmail (optionally filter by job)
-  const url = BACKEND + '/get_messages?user1=' + encodeURIComponent(currentUser.email) + '&user2=' + encodeURIComponent(withEmail) + (job_id?('&job_id='+encodeURIComponent(job_id)):'');
-  const r = await fetch(url);
-  const j = await r.json();
-  const conv = j.messages || [];
-  const body = document.getElementById('messageModalBody');
-  body.innerHTML = '';
-  for(const m of conv){
-    const cls = m.from === currentUser.email ? 'text-end' : 'text-start';
-    body.innerHTML += `<div class="${cls} mb-2"><div class="d-inline-block p-2 ${m.from===currentUser.email?'bg-primary text-white':'bg-light'} rounded">${escapeHtml(m.message)}</div><div class="small-muted-sm">${escapeHtml(new Date(m.timestamp).toLocaleString())}</div></div>`;
-  }
-}
-
-/* send message */
-async function sendMessage(){
-  const txt = document.getElementById('messageText').value.trim();
-  if(!txt) return;
-  if(!messageTarget.to){ showToast('Select a recipient','warning'); return; }
-  const payload = { from: currentUser.email, to: messageTarget.to, job_id: messageTarget.job_id, message: txt };
-  const r = await fetch(BACKEND + '/send_message',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-  if(r.ok){ document.getElementById('messageText').value=''; loadMessageHistory(messageTarget.to, messageTarget.job_id); showToast('Sent','success'); } else showToast('Send failed','danger');
-}
-
-/* Logout */
-function logout(){ localStorage.removeItem('portal_user'); currentUser=null; updateAuthUI(); showSection('homeSection'); showToast('Logged out','info'); }
-
-/* open hr message modal used earlier */
-function openMessageToApplicant(email, jobId){ openMessageTo(email,jobId); }
-
-/* openMessageTo wrapper */
-function openMessageTo(a,b,c){ openMessageTo(a,b); } // keeps older calls safe
-
-/* ========== INIT ========== */
-(async function init(){
-  updateAuthUI();
-  // load jobs on home
-  loadJobs();
-  // if logged-in, route to dashboard automatically
-  if(currentUser){
-    if(currentUser.role==='applicant') loadApplicantDashboard();
-    if(currentUser.role==='hr') loadHRDashboard();
-  }
-})();
-
+// Recruiter Registration
+document.getElementById('recruiterForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const data={
+        name:document.getElementById('recName').value,
+        email:document.getElementById('recEmail').value,
+        password:document.getElementById('recPassword').value,
+        company:document.getElementById('recCompany').value,
+        phone:document.getElementById('recPhone').value
+    };
+    try{ await axios.post('https://your-render-backend-url/register/recruiter',data); alert('Registered'); showLogin(); }
+    catch(err){ alert('Failed'); }
+});
 </script>
+
 </body>
 </html>
