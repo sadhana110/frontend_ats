@@ -51,7 +51,7 @@ function showPostJob(){
             description:document.getElementById('jobDesc').value,
             end_date:document.getElementById('jobEndDate').value
         };
-        try{ await axios.post('https://your-render-backend-url/recruiter/job', data); alert('Job Posted'); }
+        try{ await axios.post('https://backend-ats-z0tb.onrender.com/recruiter/job', data); alert('Job Posted'); }
         catch(err){ alert('Failed'); }
     });
 }
