@@ -150,10 +150,12 @@ async function loadShortlistedJobs(){
             <h5>${app.jobTitle}</h5>
             ${app.interviewDate ? `<p>Interview: ${new Date(app.interviewDate).toLocaleString()}</p>` : ''}
             <p><strong>Recruiter:</strong> ${app.recruiterName || 'N/A'}</p>
+            <button class="btn btn-info btn-sm" onclick="openChat('${app.recruiterId}', '${app.recruiterName}')">Chat</button>
         </div>`;
         container.appendChild(card);
     });
 }
+
 
 // -------------------- MESSAGES --------------------
 // -------------------- MESSAGES --------------------
@@ -239,6 +241,56 @@ async function loadMessages() {
         container.innerHTML = '<p>Failed to load messages</p>';
     }
 }
+
+async function openChat(recruiterId, recruiterName) {
+    const container = document.getElementById('dashboardContent');
+    container.innerHTML = `<h4>Chat with ${recruiterName}</h4><div id="chatBox" class="border p-3" style="height:400px; overflow-y:auto;"></div>
+    <div class="mt-3">
+        <input type="text" id="chatInput" class="form-control mb-2" placeholder="Type your message...">
+        <button class="btn btn-primary" id="sendChatBtn">Send</button>
+    </div>`;
+
+    // Load previous chat
+    async function loadChat() {
+        const res = await fetch(`${BASE_URL}/candidate/messages?candidateId=${user.id}&recruiterId=${recruiterId}`);
+        const data = await res.json();
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = '';
+        const msgs = data.messages || [];
+        msgs.forEach(m => {
+            const align = m.fromId === user.id ? 'text-end text-primary' : 'text-start text-secondary';
+            chatBox.innerHTML += `<div class="${align}"><strong>${m.fromName}:</strong> ${m.message}<br><small>${new Date(m.date).toLocaleString()}</small></div>`;
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    loadChat();
+
+    // Send message
+    document.getElementById('sendChatBtn').addEventListener('click', async () => {
+        const msg = document.getElementById('chatInput').value.trim();
+        if (!msg) return;
+        const res = await fetch(`${BASE_URL}/candidate/messages`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                fromId: user.id,
+                fromName: user.name,
+                toId: recruiterId,
+                toName: recruiterName,
+                message: msg
+            })
+        });
+        if (res.ok) {
+            document.getElementById('chatInput').value = '';
+            loadChat();
+        }
+    });
+
+    // Auto-refresh chat every 5 seconds
+    setInterval(loadChat, 5000);
+}
+
 
 
 </script>
