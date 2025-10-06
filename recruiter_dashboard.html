@@ -136,8 +136,47 @@ async function loadManageJobs(){
 }
 
 async function editJob(jobId){
-    alert('Edit Job feature coming soon'); 
+    const res = await fetch(`${BASE_URL}/jobs/${jobId}`);
+    const job = await res.json();
+
+    const container = document.getElementById('dashboardContent');
+    container.innerHTML = `
+        <div class="col-md-12">
+            <h4>Edit Job</h4>
+            <form id="editJobForm">
+                <input type="text" id="title" class="form-control mb-2" value="${job.title}" required>
+                <input type="text" id="company" class="form-control mb-2" value="${job.company}" required>
+                <input type="text" id="location" class="form-control mb-2" value="${job.location}" required>
+                <input type="text" id="role" class="form-control mb-2" value="${job.role}" required>
+                <textarea id="description" class="form-control mb-2" required>${job.description}</textarea>
+                <input type="date" id="expiryDate" class="form-control mb-2" value="${job.expiryDate.split('T')[0]}" required>
+                <button type="submit" class="btn btn-primary">Update Job</button>
+                <button type="button" class="btn btn-secondary" onclick="loadManageJobs()">Cancel</button>
+            </form>
+        </div>
+    `;
+
+    document.getElementById('editJobForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const updatedJob = {
+            title: document.getElementById('title').value,
+            company: document.getElementById('company').value,
+            location: document.getElementById('location').value,
+            role: document.getElementById('role').value,
+            description: document.getElementById('description').value,
+            expiryDate: document.getElementById('expiryDate').value
+        };
+        const res = await fetch(`${BASE_URL}/jobs/${jobId}`, {
+            method: 'PUT',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(updatedJob)
+        });
+        const result = await res.json();
+        if(res.ok){ alert(result.message); loadManageJobs(); }
+        else alert(result.message);
+    });
 }
+
 
 async function deleteJob(jobId){
     if(!confirm('Are you sure you want to delete this job?')) return;
@@ -209,17 +248,36 @@ async function loadShortlistedApplicants(){
         const card = document.createElement('div');
         card.className='col-md-6 mb-3';
         card.innerHTML=`
+<div class="card p-3 shadow hover-card">
+  <p><strong>Candidate:</strong> ${app.candidateName}</p>
+  <p><strong>Job:</strong> ${app.jobTitle}</p>
+  <button class="btn btn-success btn-sm" onclick="approveCandidate('${app.id}', true)">Approve</button>
+  <button class="btn btn-danger btn-sm" onclick="approveCandidate('${app.id}', false)">Block</button>
+  <button class="btn btn-info btn-sm" onclick="openChat('${app.candidateId}', '${app.candidateName}')">Chat</button>
+</div>`;
+
+        card.innerHTML=`
         <div class="card p-3 shadow hover-card">
             <p><strong>Candidate:</strong> ${app.candidateName}</p>
             <p><strong>Job:</strong> ${app.jobTitle}</p>
             <p>Interview: ${new Date(app.interviewDate).toLocaleString()}</p>
-            <button class="btn btn-info btn-sm" onclick="sendMessage('${app.candidateId}')">Message</button>
+            <button class="btn btn-info btn-sm" onclick="openChat('${app.candidateId}', '${app.candidateName}')">Chat</button>
+
         </div>`;
         container.appendChild(card);
     });
 }
+async function approveCandidate(appId, approve) {
+    const res = await fetch(`${BASE_URL}/applications/${appId}/approve`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({approve})
+    });
+    const data = await res.json();
+    alert(data.message);
+    loadShortlistedApplicants();
+}
 
-// -------------------- MESSAGES --------------------
 // -------------------- RECRUITER MESSAGES (Interactive Chat) --------------------
 async function loadMessages() {
     const container = document.getElementById('dashboardContent');
