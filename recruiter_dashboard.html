@@ -104,13 +104,10 @@ async function loadPostJobForm(){
 
             if(res.ok){
                 alert(result.message || 'Job posted successfully!');
-                loadJobs(); // reload job list
+                showTab('manageJobs');
             } else {
                 alert('Error posting job: ' + (result.message || 'Unknown error'));
-            }
-        } catch(err){
-            console.error(err);
-            alert('Server error: Cannot connect to backend');
+            } 
         }
     });
 }
