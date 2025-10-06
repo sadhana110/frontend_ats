@@ -157,7 +157,19 @@ async function loadShortlistedJobs(){
 
 // -------------------- MESSAGES --------------------
 async function loadMessages(){
-    const res = await fetch(`${BASE_URL}/messages?userId=${user.id}`);
+    const res = await fetch(`${BASE_URL}/candidate/messages`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+        fromId: user.id,
+        fromName: user.name,
+        fromEmail: user.email || '',
+        toId: recruiterId,
+        toName: recruiterName,
+        message
+    })
+});
+
     const data = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
