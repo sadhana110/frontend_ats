@@ -220,141 +220,100 @@ async function loadShortlistedApplicants(){
 }
 
 // -------------------- MESSAGES --------------------
-async function loadMessages(){
-    const res = await fetch(`${BASE_URL}/messages?userId=${user.id}`);
-    const data = await res.json();
+// -------------------- RECRUITER MESSAGES (Interactive Chat) --------------------
+async function loadMessages() {
     const container = document.getElementById('dashboardContent');
-    container.innerHTML='';
-    if(!data.messages || data.messages.length===0){ container.innerHTML='<p>No messages</p>'; return;}
-    data.messages.forEach(msg=>{
-        const card = document.createElement('div');
-        card.className='col-md-6 mb-3';
-        card.innerHTML=`
-        <div class="card p-3 shadow hover-card">
-            <p><strong>From:</strong> ${msg.fromName}</p>
-            <p>${msg.message}</p>
-            <p><small>${new Date(msg.date).toLocaleString()}</small></p>
-        </div>`;
-        container.appendChild(card);
-    });
-}
+    container.innerHTML = '<p class="text-center">Loading messages...</p>';
 
-async function loadShortlistedApplicants(){
-    const res = await fetch(`${BASE_URL}/recruiters/${user.id}/shortlisted`);
-    const apps = await res.json();
-    const container = document.getElementById('dashboardContent');
-    container.innerHTML = '';
-    if(!apps || apps.length===0){ container.innerHTML='<p>No shortlisted applicants</p>'; return; }
-
-    apps.forEach(app => {
-        const card = document.createElement('div');
-        card.className='col-md-6 mb-3';
-        card.innerHTML = `
-            <div class="card p-3 shadow hover-card">
-                <p><strong>Candidate:</strong> ${app.candidateName}</p>
-                <p><strong>Job:</strong> ${app.jobTitle}</p>
-                <p>Interview: ${new Date(app.interviewDate).toLocaleString()}</p>
-                <p>Approval: ${app.approval || 'pending'}</p>
-                ${!app.approval ? `<button class="btn btn-success btn-sm" onclick="approveCandidate('${app.id}', true)">Approve</button>` : ''}
-                ${!app.approval ? `<button class="btn btn-danger btn-sm" onclick="approveCandidate('${app.id}', false)">Block</button>` : ''}
-                ${app.approval==='approved' ? `<button class="btn btn-info btn-sm" onclick="openChat('${app.candidateId}', '${app.candidateName}')">Chat</button>` : ''}
-            </div>`;
-        container.appendChild(card);
-    });
-}
-
-// Approve / Block
-async function approveCandidate(appId, approve){
     try {
-        const res = await fetch(`${BASE_URL}/applications/${appId}/approve`, {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({approve})
-        });
-        const result = await res.json();
-        alert(result.message);
-        loadShortlistedApplicants();
-    } catch(err){ alert('Error: ' + err); }
-}
+        // Fetch all messages for this recruiter
+        const res = await fetch(`${BASE_URL}/recruiter/messages?recruiterId=${user.id}`);
+        const data = await res.json();
 
-// Open Chat window
-function openChat(candidateId, candidateName){
-    const container = document.getElementById('dashboardContent');
-    container.innerHTML = `
-        <div class="col-md-12">
-            <h5>Chat with ${candidateName}</h5>
-            <div id="chatBox" style="height:400px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px;"></div>
-            <input type="text" id="chatInput" class="form-control" placeholder="Type your message">
-            <button class="btn btn-primary mt-2" onclick="sendChatMessage('${candidateId}')">Send</button>
-            <button class="btn btn-secondary mt-2" onclick="loadShortlistedApplicants()">Back</button>
-        </div>`;
-    loadChatHistory(candidateId);
-}
+        const msgs = data.messages || [];
+        container.innerHTML = '';
 
-// Load chat messages
-async function loadChatHistory(candidateId){
-    const res = await fetch(`${BASE_URL}/messages?userId=${user.id}`);
-    const data = await res.json();
-    const chatBox = document.getElementById('chatBox');
-    chatBox.innerHTML = '';
-    data.messages.filter(m => m.fromId===candidateId || m.toId===candidateId)
-                 .forEach(m => {
-                    const align = m.fromId===user.id ? 'text-end' : 'text-start';
-                    chatBox.innerHTML += `<p class="${align}"><strong>${m.fromId===user.id?'You':'${m.fromId}'}:</strong> ${m.message}</p>`;
-                 });
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// Send chat message
-async function sendChatMessage(candidateId){
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    if(!message) return;
-    try {
-        const res = await fetch(`${BASE_URL}/messages`, {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({fromId:user.id, toId:candidateId, message})
-        });
-        const result = await res.json();
-        if(res.status===201){
-            input.value='';
-            loadChatHistory(candidateId);
-        } else {
-            alert(result.message);
+        if (!msgs || msgs.length === 0) {
+            container.innerHTML = '<p>No messages yet</p>';
+            return;
         }
-    } catch(err){ alert('Server error: ' + err); }
-}
-    
 
-// -------------------- SEND MESSAGE --------------------
-function sendMessage(candidateId){
-    const message = prompt('Enter your message:');
-    if(!message) return;
+        // Create chat box
+        const chatBox = document.createElement('div');
+        chatBox.className = 'col-md-12';
 
-    fetch(`${BASE_URL}/messages`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            fromId: user.id,
-            toId: candidateId,
-            message: message
-        })
-    })
-    .then(res => {
-        // Keep res here to check status
-        return res.json().then(result => ({ status: res.status, body: result }));
-    })
-    .then(({status, body}) => {
-        if(status === 201){
-            alert(body.message);
-            loadMessages(); // reload messages if needed
-        } else {
-            alert('Failed to send message: ' + (body.message || 'Unknown error'));
-        }
-    })
-    .catch(err => alert('Server error: ' + err));
+        msgs.forEach(msg => {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = msg.fromId === user.id ? 'alert alert-primary text-end' : 'alert alert-secondary text-start';
+            msgDiv.innerHTML = `<strong>${msg.fromName} (${msg.fromEmail || ''})</strong>: ${msg.message} <br><small>${new Date(msg.date).toLocaleString()}</small>`;
+            chatBox.appendChild(msgDiv);
+        });
+
+        // Input for sending message
+        const inputDiv = document.createElement('div');
+        inputDiv.className = 'mt-3';
+        inputDiv.innerHTML = `
+            <select id="chatCandidateSelect" class="form-select mb-2">
+                <option value="">Select Candidate to Message</option>
+            </select>
+            <input type="text" id="chatInput" class="form-control mb-2" placeholder="Type your message...">
+            <button class="btn btn-primary" id="sendChatBtn">Send</button>
+        `;
+        chatBox.appendChild(inputDiv);
+
+        container.appendChild(chatBox);
+
+        // Populate candidate dropdown
+        const candidates = [...new Set(msgs.map(m => m.fromId !== user.id ? {id: m.fromId, name: m.fromName, email: m.fromEmail} : null).filter(Boolean))];
+        const select = document.getElementById('chatCandidateSelect');
+        candidates.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.text = `${c.name} (${c.email || 'No email'})`;
+            select.appendChild(option);
+        });
+
+        // Send button handler
+        document.getElementById('sendChatBtn').addEventListener('click', async () => {
+            const candidateId = select.value;
+            const candidateName = select.options[select.selectedIndex].text.split(' (')[0];
+            const message = document.getElementById('chatInput').value.trim();
+
+            if (!candidateId) return alert('Select a candidate to message');
+            if (!message) return alert('Enter a message');
+
+            try {
+                const res = await fetch(`${BASE_URL}/recruiter/messages`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        fromId: user.id,
+                        fromName: user.name,
+                        fromEmail: user.email || '',
+                        toId: candidateId,
+                        toName: candidateName,
+                        message
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('chatInput').value = '';
+                    loadMessages(); // refresh chat
+                } else {
+                    alert('Failed to send: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error while sending');
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p>Failed to load messages</p>';
+    }
 }
+
 </script>
 </body>
 </html>
