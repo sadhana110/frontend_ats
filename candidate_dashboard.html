@@ -157,12 +157,13 @@ async function loadShortlistedJobs(){
 
 // -------------------- MESSAGES --------------------
 // -------------------- MESSAGES --------------------
+// -------------------- CANDIDATE MESSAGES (Interactive Chat) --------------------
 async function loadMessages() {
     const container = document.getElementById('dashboardContent');
     container.innerHTML = '<p class="text-center">Loading messages...</p>';
 
     try {
-        // GET all messages for this candidate
+        // Fetch all messages for this candidate
         const res = await fetch(`${BASE_URL}/candidate/messages?candidateId=${user.id}`);
         const data = await res.json();
 
@@ -170,55 +171,75 @@ async function loadMessages() {
         container.innerHTML = '';
 
         if (!msgs || msgs.length === 0) {
-            container.innerHTML = '<p>No messages</p>';
+            container.innerHTML = '<p>No messages yet</p>';
             return;
         }
 
+        // Create chat box
+        const chatBox = document.createElement('div');
+        chatBox.className = 'col-md-12';
+
         msgs.forEach(msg => {
-            const card = document.createElement('div');
-            card.className = 'col-md-6 mb-3';
-            card.innerHTML = `
-            <div class="card p-3 shadow hover-card">
-                <p><strong>From:</strong> ${msg.fromName || msg.from || 'Unknown'} (${msg.fromEmail || ''})</p>
-                <p>${msg.message}</p>
-                <p><small>${new Date(msg.date).toLocaleString()}</small></p>
-            </div>`;
-            container.appendChild(card);
+            const msgDiv = document.createElement('div');
+            msgDiv.className = msg.fromId === user.id ? 'alert alert-primary text-end' : 'alert alert-secondary text-start';
+            msgDiv.innerHTML = `<strong>${msg.fromName} (${msg.fromEmail || ''})</strong>: ${msg.message} <br><small>${new Date(msg.date).toLocaleString()}</small>`;
+            chatBox.appendChild(msgDiv);
         });
+
+        // Input for sending message
+        const inputDiv = document.createElement('div');
+        inputDiv.className = 'mt-3';
+        inputDiv.innerHTML = `
+            <input type="text" id="chatInput" class="form-control mb-2" placeholder="Type your message...">
+            <button class="btn btn-primary" id="sendChatBtn">Send</button>
+        `;
+        chatBox.appendChild(inputDiv);
+
+        container.appendChild(chatBox);
+
+        // Send button handler
+        document.getElementById('sendChatBtn').addEventListener('click', async () => {
+            const message = document.getElementById('chatInput').value.trim();
+            if (!message) return alert('Enter a message');
+
+            // Assume the recruiterId is the recipient of the last message
+            const recruiterId = msgs.find(m => m.fromId !== user.id)?.fromId;
+            const recruiterName = msgs.find(m => m.fromId !== user.id)?.fromName;
+
+            if (!recruiterId) return alert('No recruiter to message');
+
+            try {
+                const res = await fetch(`${BASE_URL}/candidate/messages`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        fromId: user.id,
+                        fromName: user.name,
+                        fromEmail: user.email || '',
+                        toId: recruiterId,
+                        toName: recruiterName,
+                        message
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('chatInput').value = '';
+                    loadMessages(); // refresh chat
+                } else {
+                    alert('Failed to send: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error while sending');
+            }
+        });
+
     } catch (err) {
         console.error(err);
         container.innerHTML = '<p>Failed to load messages</p>';
     }
 }
-async function sendMessageToRecruiter(recruiterId, recruiterName, message) {
-    if (!message) return;
 
-    try {
-        const res = await fetch(`${BASE_URL}/candidate/messages`, {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                fromId: user.id,
-                fromName: user.name,
-                fromEmail: user.email || '',
-                toId: recruiterId,
-                toName: recruiterName,
-                message
-            })
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-            alert('Message sent ✅');
-            loadMessages(); // refresh chat
-        } else {
-            alert('Failed to send message: ' + data.message);
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Server error while sending message');
-    }
-}
 
 </script>
 </body>
