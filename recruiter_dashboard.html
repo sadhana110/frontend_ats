@@ -239,6 +239,94 @@ async function loadMessages(){
     });
 }
 
+async function loadShortlistedApplicants(){
+    const res = await fetch(`${BASE_URL}/recruiters/${user.id}/shortlisted`);
+    const apps = await res.json();
+    const container = document.getElementById('dashboardContent');
+    container.innerHTML = '';
+    if(!apps || apps.length===0){ container.innerHTML='<p>No shortlisted applicants</p>'; return; }
+
+    apps.forEach(app => {
+        const card = document.createElement('div');
+        card.className='col-md-6 mb-3';
+        card.innerHTML = `
+            <div class="card p-3 shadow hover-card">
+                <p><strong>Candidate:</strong> ${app.candidateName}</p>
+                <p><strong>Job:</strong> ${app.jobTitle}</p>
+                <p>Interview: ${new Date(app.interviewDate).toLocaleString()}</p>
+                <p>Approval: ${app.approval || 'pending'}</p>
+                ${!app.approval ? `<button class="btn btn-success btn-sm" onclick="approveCandidate('${app.id}', true)">Approve</button>` : ''}
+                ${!app.approval ? `<button class="btn btn-danger btn-sm" onclick="approveCandidate('${app.id}', false)">Block</button>` : ''}
+                ${app.approval==='approved' ? `<button class="btn btn-info btn-sm" onclick="openChat('${app.candidateId}', '${app.candidateName}')">Chat</button>` : ''}
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
+// Approve / Block
+async function approveCandidate(appId, approve){
+    try {
+        const res = await fetch(`${BASE_URL}/applications/${appId}/approve`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({approve})
+        });
+        const result = await res.json();
+        alert(result.message);
+        loadShortlistedApplicants();
+    } catch(err){ alert('Error: ' + err); }
+}
+
+// Open Chat window
+function openChat(candidateId, candidateName){
+    const container = document.getElementById('dashboardContent');
+    container.innerHTML = `
+        <div class="col-md-12">
+            <h5>Chat with ${candidateName}</h5>
+            <div id="chatBox" style="height:400px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px;"></div>
+            <input type="text" id="chatInput" class="form-control" placeholder="Type your message">
+            <button class="btn btn-primary mt-2" onclick="sendChatMessage('${candidateId}')">Send</button>
+            <button class="btn btn-secondary mt-2" onclick="loadShortlistedApplicants()">Back</button>
+        </div>`;
+    loadChatHistory(candidateId);
+}
+
+// Load chat messages
+async function loadChatHistory(candidateId){
+    const res = await fetch(`${BASE_URL}/messages?userId=${user.id}`);
+    const data = await res.json();
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = '';
+    data.messages.filter(m => m.fromId===candidateId || m.toId===candidateId)
+                 .forEach(m => {
+                    const align = m.fromId===user.id ? 'text-end' : 'text-start';
+                    chatBox.innerHTML += `<p class="${align}"><strong>${m.fromId===user.id?'You':'${m.fromId}'}:</strong> ${m.message}</p>`;
+                 });
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Send chat message
+async function sendChatMessage(candidateId){
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if(!message) return;
+    try {
+        const res = await fetch(`${BASE_URL}/messages`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({fromId:user.id, toId:candidateId, message})
+        });
+        const result = await res.json();
+        if(res.status===201){
+            input.value='';
+            loadChatHistory(candidateId);
+        } else {
+            alert(result.message);
+        }
+    } catch(err){ alert('Server error: ' + err); }
+}
+    
+
 // -------------------- SEND MESSAGE --------------------
 function sendMessage(candidateId){
     const message = prompt('Enter your message:');
