@@ -156,43 +156,70 @@ async function loadShortlistedJobs(){
 }
 
 // -------------------- MESSAGES --------------------
-async function loadMessages(){
-    const res = await fetch(`${BASE_URL}/candidate/messages`, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-        fromId: user.id,
-        fromName: user.name,
-        fromEmail: user.email || '',
-        toId: recruiterId,
-        toName: recruiterName,
-        message
-    })
-});
-
-    const data = await res.json();
+// -------------------- MESSAGES --------------------
+async function loadMessages() {
     const container = document.getElementById('dashboardContent');
-    container.innerHTML='';
+    container.innerHTML = '<p class="text-center">Loading messages...</p>';
 
-    const msgs = data.messages || data; // handles both backend response styles
+    try {
+        // GET all messages for this candidate
+        const res = await fetch(`${BASE_URL}/candidate/messages?candidateId=${user.id}`);
+        const data = await res.json();
 
-    if(!msgs || msgs.length===0){ 
-        container.innerHTML='<p>No messages</p>'; 
-        return;
+        const msgs = data.messages || [];
+        container.innerHTML = '';
+
+        if (!msgs || msgs.length === 0) {
+            container.innerHTML = '<p>No messages</p>';
+            return;
+        }
+
+        msgs.forEach(msg => {
+            const card = document.createElement('div');
+            card.className = 'col-md-6 mb-3';
+            card.innerHTML = `
+            <div class="card p-3 shadow hover-card">
+                <p><strong>From:</strong> ${msg.fromName || msg.from || 'Unknown'} (${msg.fromEmail || ''})</p>
+                <p>${msg.message}</p>
+                <p><small>${new Date(msg.date).toLocaleString()}</small></p>
+            </div>`;
+            container.appendChild(card);
+        });
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p>Failed to load messages</p>';
     }
-
-    msgs.forEach(msg=>{
-        const card = document.createElement('div');
-        card.className='col-md-6 mb-3';
-        card.innerHTML=`
-        <div class="card p-3 shadow hover-card">
-            <p><strong>From:</strong> ${msg.fromName || msg.from || 'Unknown'}</p>
-            <p>${msg.message}</p>
-            <p><small>${new Date(msg.date).toLocaleString()}</small></p>
-        </div>`;
-        container.appendChild(card);
-    });
 }
+async function sendMessageToRecruiter(recruiterId, recruiterName, message) {
+    if (!message) return;
+
+    try {
+        const res = await fetch(`${BASE_URL}/candidate/messages`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                fromId: user.id,
+                fromName: user.name,
+                fromEmail: user.email || '',
+                toId: recruiterId,
+                toName: recruiterName,
+                message
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert('Message sent ✅');
+            loadMessages(); // refresh chat
+        } else {
+            alert('Failed to send message: ' + data.message);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Server error while sending message');
+    }
+}
+
 </script>
 </body>
 </html>
