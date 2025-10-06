@@ -128,8 +128,8 @@ async function loadManageJobs(){
             <p>Company: ${job.company}</p>
             <p>Location: ${job.location}</p>
             <p>End Date: ${new Date(job.endDate).toLocaleDateString()}</p>
-            <button class="btn btn-warning btn-sm" onclick="editJob(${job.id})">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteJob(${job.id})">Delete</button>
+            <button class="btn btn-warning btn-sm" onclick="editJob('${job.id}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteJob('${job.id}')">Delete</button>
         </div>`;
         container.appendChild(card);
     });
@@ -160,8 +160,8 @@ async function loadApplications(){
             <p><strong>Candidate:</strong> ${app.candidateName}</p>
             <p><strong>Job:</strong> ${app.jobTitle}</p>
             <p>Status: ${app.status}</p>
-            ${app.status==='applied' ? `<button class="btn btn-success btn-sm" onclick="shortlistApplicant(${app.id})">Shortlist</button>` : ''}
-            ${app.status==='applied' ? `<button class="btn btn-danger btn-sm" onclick="rejectApplicant(${app.id})">Reject</button>` : ''}
+            ${app.status==='applied' ? `<button class="btn btn-success btn-sm" onclick="shortlistApplicant('${app.id}')">Shortlist</button>` : ''}
+            ${app.status==='applied' ? `<button class="btn btn-danger btn-sm" onclick="rejectApplicant('${app.id}')">Reject</button>` : ''}
         </div>`;
         container.appendChild(card);
     });
