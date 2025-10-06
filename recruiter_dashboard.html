@@ -59,9 +59,9 @@ function showTab(tab){
 }
 
 // -------------------- POST JOB --------------------
-async function loadPostJobForm(){
+async function loadPostJobForm() {
     const container = document.getElementById('dashboardContent');
-    container.innerHTML=`
+    container.innerHTML = `
     <div class="col-md-12">
         <div class="card p-4 shadow">
             <h4>Post New Job</h4>
@@ -77,40 +77,44 @@ async function loadPostJobForm(){
         </div>
     </div>`;
 
-    document.getElementById('postJobForm').addEventListener('submit', async (e)=>{
+    document.getElementById('postJobForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const currentUser = JSON.parse(localStorage.getItem('user'));
-        if(!currentUser) return alert("You must be logged in as recruiter!");
+        if (!currentUser) return alert("You must be logged in as recruiter!");
 
-        const data={
+        const data = {
             title: document.getElementById('title').value,
             company: document.getElementById('company').value,
             location: document.getElementById('location').value,
             role: document.getElementById('role').value,
             description: document.getElementById('description').value,
-            expiryDate: document.getElementById('expiryDate').value, // corrected
+            expiryDate: document.getElementById('expiryDate').value,
             recruiterId: currentUser.id
         };
 
         try {
-            const res = await fetch(`${BASE_URL}/jobs`,{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify(data)
+            const res = await fetch(`${BASE_URL}/jobs`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
             });
 
             const result = await res.json();
 
-            if(res.ok){
+            if (res.ok) {
                 alert(result.message || 'Job posted successfully!');
-                showTab('manageJobs');
+                showTab('manageJobs'); // switch to Manage Jobs tab
             } else {
                 alert('Error posting job: ' + (result.message || 'Unknown error'));
-            } 
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Server error: Cannot connect to backend');
         }
     });
 }
+
 
 
 // -------------------- MANAGE JOBS --------------------
