@@ -238,35 +238,38 @@ async function rejectApplicant(appId){
 
 
 // -------------------- SHORTLISTED --------------------
+// -------------------- SHORTLISTED --------------------
 async function loadShortlistedApplicants(){
     const res = await fetch(`${BASE_URL}/recruiters/${user.id}/shortlisted`);
     const apps = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
-    if(!apps || apps.length===0){ container.innerHTML='<p>No shortlisted applicants</p>'; return;}
+    if(!apps || apps.length===0){ 
+        container.innerHTML='<p>No shortlisted applicants</p>'; 
+        return;
+    }
+
     apps.forEach(app=>{
         const card = document.createElement('div');
         card.className='col-md-6 mb-3';
-        card.innerHTML=`
-<div class="card p-3 shadow hover-card">
-  <p><strong>Candidate:</strong> ${app.candidateName}</p>
-  <p><strong>Job:</strong> ${app.jobTitle}</p>
-  <button class="btn btn-success btn-sm" onclick="approveCandidate('${app.id}', true)">Approve</button>
-  <button class="btn btn-danger btn-sm" onclick="approveCandidate('${app.id}', false)">Block</button>
-  <button class="btn btn-info btn-sm" onclick="openChat('${app.candidateId}', '${app.candidateName}')">Chat</button>
-</div>`;
-
         card.innerHTML=`
         <div class="card p-3 shadow hover-card">
             <p><strong>Candidate:</strong> ${app.candidateName}</p>
             <p><strong>Job:</strong> ${app.jobTitle}</p>
             <p>Interview: ${new Date(app.interviewDate).toLocaleString()}</p>
-            <button class="btn btn-info btn-sm" onclick="openChat('${app.candidateId}', '${app.candidateName}')">Chat</button>
-
+            <p>Status: ${app.approval || 'Pending'}</p>
+            ${!app.approval ? `
+                <button class="btn btn-success btn-sm" onclick="approveCandidate('${app.id}', true)">Approve</button>
+                <button class="btn btn-danger btn-sm" onclick="approveCandidate('${app.id}', false)">Block</button>
+            ` : ''}
+            ${app.approval === 'approved' ? `
+                <button class="btn btn-info btn-sm" onclick="openChat('${app.candidateId}', '${app.candidateName}')">Chat</button>
+            ` : ''}
         </div>`;
         container.appendChild(card);
     });
 }
+
 async function approveCandidate(appId, approve) {
     const res = await fetch(`${BASE_URL}/applications/${appId}/approve`, {
         method: 'POST',
