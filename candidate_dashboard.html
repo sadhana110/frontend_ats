@@ -71,7 +71,7 @@ async function loadAllJobs(){
             <p><strong>Location:</strong> ${job.location}</p>
             <p><strong>Ends:</strong> ${new Date(job.expiryDate).toLocaleDateString()}</p>
             <button class="btn btn-primary btn-sm" onclick="applyJob('${job.id}','${job.title}','${job.recruiterId}')">Apply</button>
-            <button class="btn btn-warning btn-sm" onclick="reportJob('${j.id}')">Report</button>
+            <button class="btn btn-warning btn-sm" onclick="reportJob('${job.id}')">Report</button>
         </div>`;
         container.appendChild(card);
     });
