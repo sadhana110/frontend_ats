@@ -71,6 +71,7 @@ async function loadAllJobs(){
             <p><strong>Location:</strong> ${job.location}</p>
             <p><strong>Ends:</strong> ${new Date(job.expiryDate).toLocaleDateString()}</p>
             <button class="btn btn-primary btn-sm" onclick="applyJob('${job.id}','${job.title}','${job.recruiterId}')">Apply</button>
+            <button class="btn btn-warning btn-sm" onclick="reportJob('${j.id}')">Report</button>
         </div>`;
         container.appendChild(card);
     });
@@ -103,6 +104,25 @@ async function applyJob(jobId, jobTitle, recruiterId) {
         console.error(err);
         alert("❌ Server error while applying");
     }
+}
+
+
+async function reportJob(jobId){
+    const user = JSON.parse(localStorage.getItem('user'));
+    const reason = prompt("Enter your reason for reporting this job:");
+    if(!reason) return;
+    const res = await fetch(`${BASE_URL}/reports`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            reporterId: user.id,
+            targetId: jobId,
+            targetType: 'job',
+            description: reason
+        })
+    });
+    if(res.ok) alert('Report submitted');
+    else alert('Error submitting report');
 }
 
 // -------------------- APPLIED JOBS --------------------
