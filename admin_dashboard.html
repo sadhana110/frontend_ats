@@ -106,20 +106,19 @@ async function loadReports(){
     }
     reports.forEach(r => {
        const card = document.createElement('div');
-card.className = 'col-md-6 mb-3';
-card.innerHTML = `
-<div class="card p-3 shadow hover-card">
-    <p><strong>Type:</strong> ${r.targetType}</p>
-    <p><strong>Description:</strong> ${r.description}</p>
-    <p><strong>Status:</strong> ${r.status}</p>
-    <button class="btn btn-primary btn-sm action-btn">Action Taken</button>
-    <button class="btn btn-danger btn-sm delete-btn">Remove</button>
-</div>`;
-container.appendChild(card);
-
-// Attach event listeners safely
-card.querySelector('.action-btn').addEventListener('click', () => resolveReport(r.id));
-card.querySelector('.delete-btn').addEventListener('click', () => deleteReport(r.id));
+      card.className = 'col-md-6 mb-3';
+      card.innerHTML = `
+      <div class="card p-3 shadow hover-card">
+      <p><strong>Type:</strong> ${r.targetType}</p>
+      <p><strong>Description:</strong> ${r.description}</p>
+      <p><strong>Status:</strong> ${r.status}</p>
+      <button class="btn btn-primary btn-sm action-btn">Action Taken</button>
+      <button class="btn btn-danger btn-sm delete-btn">Remove</button>
+      </div>`;
+      container.appendChild(card);
+      // Attach event listeners safely
+      card.querySelector('.action-btn').addEventListener('click', () => resolveReport(r.id));
+      card.querySelector('.delete-btn').addEventListener('click', () => deleteReport(r.id));
 
     });
 }
