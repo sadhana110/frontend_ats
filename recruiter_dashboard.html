@@ -206,6 +206,8 @@ async function loadApplications(){
             <p>Status: ${app.status}</p>
             ${app.status==='applied' ? `<button class="btn btn-success btn-sm" onclick="shortlistApplicant('${app.id}')">Shortlist</button>` : ''}
             ${app.status==='applied' ? `<button class="btn btn-danger btn-sm" onclick="rejectApplicant('${app.id}')">Reject</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="reportCandidate('${c.id}')">Report</button>
+
         </div>`;
         container.appendChild(card);
     });
@@ -240,6 +242,25 @@ async function rejectApplicant(appId){
         alert('Server error: ' + err);
     }
 }
+
+async function reportCandidate(candidateId){
+    const user = JSON.parse(localStorage.getItem('user'));
+    const reason = prompt("Enter your reason for reporting this candidate:");
+    if(!reason) return;
+    const res = await fetch(`${BASE_URL}/reports`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            reporterId: user.id,
+            targetId: candidateId,
+            targetType: 'candidate',
+            description: reason
+        })
+    });
+    if(res.ok) alert('Report submitted');
+    else alert('Error submitting report');
+}
+
 
 
 // -------------------- SHORTLISTED --------------------
