@@ -94,67 +94,100 @@ async function loadCandidates() {
   });
 }
 
-// -------------------- LOAD REPORTS --------------------
-async function loadReports(){
-    const res = await fetch(`${BASE_URL}/admin/manage/reports`);
-    const reports = await res.json();
-    const container = document.getElementById('dashboardContent');
-    container.innerHTML = '';
-    if(!reports || reports.length === 0){ 
-        container.innerHTML = '<p>No reports</p>'; 
-        return;
-    }
-    reports.forEach(r => {
-       const card = document.createElement('div');
-card.className = 'col-md-6 mb-3';
-card.innerHTML = `
-<div class="card p-3 shadow hover-card">
-    <p><strong>Type:</strong> ${r.targetType}</p>
-    <p><strong>Description:</strong> ${r.description}</p>
-    <p><strong>Status:</strong> ${r.status}</p>
-    <button class="btn btn-primary btn-sm action-btn">Action Taken</button>
-    <button class="btn btn-danger btn-sm delete-btn">Remove</button>
-</div>`;
-container.appendChild(card);
+const BASE_URL = "https://backend-ats-z0tb.onrender.com"; // change to your backend URL
 
-// Attach event listeners safely
-card.querySelector('.action-btn').addEventListener('click', () => resolveReport(r.id));
-card.querySelector('.delete-btn').addEventListener('click', () => deleteReport(r.id));
-
-    });
-}
-
-async function deleteReport(id){
-    if(!confirm("Delete this report?")) return;
-    const res = await fetch(`${BASE_URL}/admin/manage/reports/${id}`, { method:'DELETE' });
-    if(res.ok){ 
-        alert('Report deleted'); 
-        loadReports(); 
-    }
-}
-
-async function resolveReport(id){
+// ---------------- LOAD REPORTS ----------------
+async function loadReports() {
     try {
+        const res = await fetch(`${BASE_URL}/admin/manage/reports`);
+        if (!res.ok) throw new Error(`Failed to fetch reports: ${res.status}`);
+
+        const reports = await res.json();
+        console.log("Fetched reports:", reports);
+
+        const container = document.getElementById('dashboardContent');
+        container.innerHTML = '';
+
+        if (!reports || reports.length === 0) {
+            container.innerHTML = '<p>No reports</p>';
+            return;
+        }
+
+        reports.forEach(r => {
+            console.log("Report ID:", r.id); // <-- Debug: check each ID
+
+            const card = document.createElement('div');
+            card.className = 'col-md-6 mb-3';
+            card.innerHTML = `
+                <div class="card p-3 shadow hover-card">
+                    <p><strong>Type:</strong> ${r.targetType}</p>
+                    <p><strong>Description:</strong> ${r.description}</p>
+                    <p><strong>Status:</strong> ${r.status}</p>
+                    <button class="btn btn-primary btn-sm action-btn">Action Taken</button>
+                    <button class="btn btn-danger btn-sm delete-btn">Remove</button>
+                </div>
+            `;
+            container.appendChild(card);
+
+            // Attach event listeners safely
+            const actionBtn = card.querySelector('.action-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+
+            actionBtn.addEventListener('click', () => resolveReport(r.id));
+            deleteBtn.addEventListener('click', () => deleteReport(r.id));
+        });
+
+    } catch (err) {
+        console.error("Error loading reports:", err);
+        alert("Failed to load reports. Check console.");
+    }
+}
+
+// ---------------- DELETE REPORT ----------------
+async function deleteReport(id) {
+    if (!confirm("Delete this report?")) return;
+    try {
+        console.log("Deleting report ID:", id); // Debug
+        const res = await fetch(`${BASE_URL}/admin/manage/reports/${id}`, { method: 'DELETE' });
+
+        if (res.ok) {
+            alert('Report deleted successfully');
+            loadReports();
+        } else {
+            const data = await res.json();
+            alert(data.message || 'Failed to delete report');
+        }
+    } catch (err) {
+        console.error("Error deleting report:", err);
+        alert("Failed to delete report. Check console.");
+    }
+}
+
+// ---------------- RESOLVE REPORT ----------------
+async function resolveReport(id) {
+    try {
+        console.log("Resolving report ID:", id); // Debug
         const res = await fetch(`${BASE_URL}/admin/manage/reports/${id}/resolve`, {
             method: 'POST'
         });
 
-        console.log(res); // debug: check status
-
         const data = await res.json();
-        console.log(data); // debug: see backend response
+        console.log("Resolve response:", data);
 
-        if(res.ok){
-            alert('Report marked as resolved');
-            loadReports(); // refresh the report list
+        if (res.ok) {
+            alert('Report marked as resolved ✅');
+            loadReports(); // refresh
         } else {
-            alert(data.message || 'Error resolving report');
+            alert(data.message || 'Failed to resolve report');
         }
-    } catch(err) {
-        console.error('Network or JS error:', err);
-        alert('Error resolving report. Check console.');
+    } catch (err) {
+        console.error("Error resolving report:", err);
+        alert("Failed to resolve report. Check console.");
     }
 }
+
+// ---------------- INIT ----------------
+window.addEventListener('DOMContentLoaded', loadReports);
 
 
 // -------------------- LOAD MESSAGES --------------------
