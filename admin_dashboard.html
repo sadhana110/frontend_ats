@@ -95,26 +95,33 @@ async function loadCandidates() {
 }
 
 // -------------------- LOAD REPORTS --------------------
-async function loadReports() {
-  const res = await fetch(`${BASE_URL}/reports`);
-  const reports = await res.json();
-  const container = document.getElementById('dashboardContent');
-  container.innerHTML = '';
-  if (!reports.length) return container.innerHTML = '<p>No reports found.</p>';
-
-  reports.forEach(r => {
-    container.innerHTML += `
-      <div class="col-md-6 mb-3">
+async function loadReports(){
+    const res = await fetch(`${BASE_URL}/admin/reports`);
+    const reports = await res.json();
+    const container = document.getElementById('dashboardContent');
+    container.innerHTML='';
+    if(!reports || reports.length===0){ container.innerHTML='<p>No reports</p>'; return;}
+    reports.forEach(r=>{
+        const card = document.createElement('div');
+        card.className='col-md-6 mb-3';
+        card.innerHTML=`
         <div class="card p-3 shadow hover-card">
-          <p><strong>Candidate:</strong> ${r.candidateName || '-'}</p>
-          <p><strong>Company:</strong> ${r.company || '-'}</p>
-          <p><strong>Job:</strong> ${r.jobTitle || '-'}</p>
-          <p><strong>Report:</strong> ${r.report || '-'}</p>
-          <button class="btn btn-primary btn-sm" onclick="resolveReport('${r.id}')">Mark Resolved</button>
-        </div>
-      </div>`;
-  });
+            <p><strong>Type:</strong> ${r.targetType}</p>
+            <p><strong>Description:</strong> ${r.description}</p>
+            <p><strong>Status:</strong> ${r.status}</p>
+            <button class="btn btn-primary btn-sm" onclick="resolveReport('${r.id}')">Action Taken</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteReport('${r.id}')">Remove</button>
+        </div>`;
+        container.appendChild(card);
+    });
 }
+
+async function deleteReport(id){
+    if(!confirm("Delete this report?")) return;
+    const res = await fetch(`${BASE_URL}/admin/reports/${id}`,{method:'DELETE'});
+    if(res.ok){ alert('Report deleted'); loadReports(); }
+}
+
 
 // -------------------- LOAD MESSAGES --------------------
 async function loadMessages() {
