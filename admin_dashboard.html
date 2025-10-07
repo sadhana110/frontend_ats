@@ -129,19 +129,27 @@ async function deleteReport(id){
 }
 
 async function resolveReport(id){
-    const res = await fetch(`${BASE_URL}/admin/manage/reports/${id}/resolve`, {
-        method: 'POST'
-    });
+    try {
+        const res = await fetch(`${BASE_URL}/admin/manage/reports/${id}/resolve`, {
+            method: 'POST'
+        });
 
-    if(res.ok){
-        alert('Report marked as resolved');
-        loadReports(); // refresh the report list
-    } else {
+        console.log(res); // debug: check status
+
         const data = await res.json();
-        alert(data.message || 'Error resolving report');
+        console.log(data); // debug: see backend response
+
+        if(res.ok){
+            alert('Report marked as resolved');
+            loadReports(); // refresh the report list
+        } else {
+            alert(data.message || 'Error resolving report');
+        }
+    } catch(err) {
+        console.error('Network or JS error:', err);
+        alert('Error resolving report. Check console.');
     }
 }
-
 
 
 // -------------------- LOAD MESSAGES --------------------
