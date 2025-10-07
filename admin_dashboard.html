@@ -96,15 +96,18 @@ async function loadCandidates() {
 
 // -------------------- LOAD REPORTS --------------------
 async function loadReports(){
-    const res = await fetch(`${BASE_URL}/admin/reports`);
+    const res = await fetch(`${BASE_URL}/admin/manage/reports`);
     const reports = await res.json();
     const container = document.getElementById('dashboardContent');
-    container.innerHTML='';
-    if(!reports || reports.length===0){ container.innerHTML='<p>No reports</p>'; return;}
-    reports.forEach(r=>{
+    container.innerHTML = '';
+    if(!reports || reports.length === 0){ 
+        container.innerHTML = '<p>No reports</p>'; 
+        return;
+    }
+    reports.forEach(r => {
         const card = document.createElement('div');
-        card.className='col-md-6 mb-3';
-        card.innerHTML=`
+        card.className = 'col-md-6 mb-3';
+        card.innerHTML = `
         <div class="card p-3 shadow hover-card">
             <p><strong>Type:</strong> ${r.targetType}</p>
             <p><strong>Description:</strong> ${r.description}</p>
@@ -118,8 +121,19 @@ async function loadReports(){
 
 async function deleteReport(id){
     if(!confirm("Delete this report?")) return;
-    const res = await fetch(`${BASE_URL}/admin/reports/${id}`,{method:'DELETE'});
-    if(res.ok){ alert('Report deleted'); loadReports(); }
+    const res = await fetch(`${BASE_URL}/admin/manage/reports/${id}`, { method:'DELETE' });
+    if(res.ok){ 
+        alert('Report deleted'); 
+        loadReports(); 
+    }
+}
+
+async function resolveReport(id){
+    const res = await fetch(`${BASE_URL}/admin/manage/reports/${id}/resolve`, { method:'POST' });
+    if(res.ok){ 
+        alert('Report resolved'); 
+        loadReports(); 
+    }
 }
 
 
