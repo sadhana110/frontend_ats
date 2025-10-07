@@ -206,7 +206,7 @@ async function loadApplications(){
             <p>Status: ${app.status}</p>
             ${app.status==='applied' ? `<button class="btn btn-success btn-sm" onclick="shortlistApplicant('${app.id}')">Shortlist</button>` : ''}
             ${app.status==='applied' ? `<button class="btn btn-danger btn-sm" onclick="rejectApplicant('${app.id}')">Reject</button>` : ''}
-            <button class="btn btn-danger btn-sm" onclick="reportCandidate('${c.id}')">Report</button>
+            <button class="btn btn-danger btn-sm" onclick="reportCandidate('${app.id}')">Report</button>
 
         </div>`;
         container.appendChild(card);
