@@ -51,10 +51,9 @@ function showTab(tab){
     else if(tab==='reports') loadReports();
     else if(tab==='messages') loadMessages();
 }
-
 // -------------------- RECRUITERS --------------------
 async function loadRecruiters(){
-    const res = await fetch(`${BASE_URL}/users?role=recruiter`);
+    const res = await fetch(`${BASE_URL}/admin/users?role=recruiter`);
     const recruiters = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
@@ -66,9 +65,9 @@ async function loadRecruiters(){
         <div class="card p-3 shadow hover-card">
             <p><strong>Name:</strong> ${r.name}</p>
             <p><strong>Email:</strong> ${r.email}</p>
-            <p><strong>Company:</strong> ${r.company}</p>
-            <button class="btn btn-danger btn-sm" onclick="banUser(${r.id})">Ban</button>
-            <button class="btn btn-warning btn-sm" onclick="investigateUser(${r.id})">Investigate</button>
+            <p><strong>Company:</strong> ${r.company || '-'}</p>
+            <button class="btn btn-danger btn-sm" onclick="banUser('${r.id}')">Ban</button>
+            <button class="btn btn-warning btn-sm" onclick="investigateUser('${r.id}')">Investigate</button>
         </div>`;
         container.appendChild(card);
     });
@@ -76,7 +75,7 @@ async function loadRecruiters(){
 
 // -------------------- CANDIDATES --------------------
 async function loadCandidates(){
-    const res = await fetch(`${BASE_URL}/users?role=candidate`);
+    const res = await fetch(`${BASE_URL}/admin/users?role=candidate`);
     const candidates = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
@@ -88,8 +87,8 @@ async function loadCandidates(){
         <div class="card p-3 shadow hover-card">
             <p><strong>Name:</strong> ${c.name}</p>
             <p><strong>Email:</strong> ${c.email}</p>
-            <button class="btn btn-danger btn-sm" onclick="banUser(${c.id})">Ban</button>
-            <button class="btn btn-warning btn-sm" onclick="investigateUser(${c.id})">Investigate</button>
+            <button class="btn btn-danger btn-sm" onclick="banUser('${c.id}')">Ban</button>
+            <button class="btn btn-warning btn-sm" onclick="investigateUser('${c.id}')">Investigate</button>
         </div>`;
         container.appendChild(card);
     });
@@ -97,7 +96,7 @@ async function loadCandidates(){
 
 // -------------------- REPORTS --------------------
 async function loadReports(){
-    const res = await fetch(`${BASE_URL}/reports`);
+    const res = await fetch(`${BASE_URL}/admin/reports`);
     const reports = await res.json();
     const container = document.getElementById('dashboardContent');
     container.innerHTML='';
@@ -111,32 +110,7 @@ async function loadReports(){
             <p><strong>Company:</strong> ${r.company}</p>
             <p><strong>Job:</strong> ${r.jobTitle}</p>
             <p><strong>Report:</strong> ${r.report}</p>
-            <button class="btn btn-primary btn-sm" onclick="resolveReport(${r.id})">Action Taken</button>
-        </div>`;
-        container.appendChild(card);
-    });
-}
-
-async function resolveReport(reportId){
-    const res = await fetch(`${BASE_URL}/reports/${reportId}/resolve`,{method:'POST'});
-    if(res.ok) { alert('Report resolved'); loadReports(); }
-}
-
-// -------------------- MESSAGES --------------------
-async function loadMessages(){
-    const res = await fetch(`${BASE_URL}/messages?userId=${user.id}`);
-    const data = await res.json();
-    const container = document.getElementById('dashboardContent');
-    container.innerHTML='';
-    if(!data.messages || data.messages.length===0){ container.innerHTML='<p>No messages</p>'; return;}
-    data.messages.forEach(msg=>{
-        const card = document.createElement('div');
-        card.className='col-md-6 mb-3';
-        card.innerHTML=`
-        <div class="card p-3 shadow hover-card">
-            <p><strong>From:</strong> ${msg.fromName}</p>
-            <p>${msg.message}</p>
-            <p><small>${new Date(msg.date).toLocaleString()}</small></p>
+            <button class="btn btn-primary btn-sm" onclick="resolveReport('${r.id}')">Action Taken</button>
         </div>`;
         container.appendChild(card);
     });
@@ -145,14 +119,20 @@ async function loadMessages(){
 // -------------------- ADMIN ACTIONS --------------------
 async function banUser(userId){
     if(!confirm('Ban this user?')) return;
-    const res = await fetch(`${BASE_URL}/users/${userId}/ban`,{method:'POST'});
+    const res = await fetch(`${BASE_URL}/admin/users/${userId}/ban`,{method:'POST'});
     if(res.ok) { alert('User banned'); loadRecruiters(); loadCandidates(); }
 }
 
 async function investigateUser(userId){
-    const res = await fetch(`${BASE_URL}/users/${userId}/investigate`,{method:'POST'});
+    const res = await fetch(`${BASE_URL}/admin/users/${userId}/investigate`,{method:'POST'});
     if(res.ok) { alert('User under investigation'); loadRecruiters(); loadCandidates(); }
 }
+
+async function resolveReport(reportId){
+    const res = await fetch(`${BASE_URL}/admin/reports/${reportId}/resolve`,{method:'POST'});
+    if(res.ok) { alert('Report resolved'); loadReports(); }
+}
+
 </script>
 </body>
 </html>
